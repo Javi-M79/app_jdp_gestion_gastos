@@ -1,0 +1,1 @@
+En esta carpeta incluiremos todas las operaciones CRUD y la logica para que cada clase intereactue con Firebase.
