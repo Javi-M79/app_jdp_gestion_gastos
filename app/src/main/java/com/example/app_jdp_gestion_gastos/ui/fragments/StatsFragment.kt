@@ -1,13 +1,17 @@
 package com.example.app_jdp_gestion_gastos.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
 import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
+
 
 class StatsFragment : Fragment() {
 
@@ -28,18 +32,29 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Simulamos algunas transacciones
-        transactionsList.add(Transaction(description = "Compra supermercado", amount = 50.0, date = "12-02-2025", icon =R
-            .drawable.supermercado))
-        transactionsList.add(Transaction(description = "Cena restaurante", amount = 30.0, date = "13-02-2025", icon =R
-            .drawable.restaurante))
-        transactionsList.add(Transaction(description = "Gasolina", amount = 20.0, date = "14-02-2025", icon =R
-            .drawable.otros))
+        // Cargar las transacciones guardadas
+        loadTransactions()
 
         // Llamamos a la función para actualizar las estadísticas
         updateStats()
     }
 
+    private fun loadTransactions() {
+        try {
+            val sharedPreferences = requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
+            val gson = Gson()
+            val json = sharedPreferences.getString("transactions", null)
+            val type = object : TypeToken<MutableList<Transaction>>() {}.type
+            val savedTransactions: MutableList<Transaction>? = gson.fromJson(json, type)
+
+            if (!savedTransactions.isNullOrEmpty()) {
+                transactionsList.clear()
+                transactionsList.addAll(savedTransactions)
+            }
+        } catch (e: Exception) {
+            Log.e("StatsFragment", "Error al cargar transacciones: ${e.message}")
+        }
+    }
     private fun updateStats() {
         val totalGastos = transactionsList.sumByDouble { it.amount }
         val promedioGastos = if (transactionsList.isNotEmpty()) {
@@ -54,7 +69,6 @@ class StatsFragment : Fragment() {
         binding.tvPromedioGastos.text = "Promedio de Gastos: $${"%.2f".format(promedioGastos)}"
         binding.tvNumTransacciones.text = "Número de Transacciones: $numTransacciones"
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

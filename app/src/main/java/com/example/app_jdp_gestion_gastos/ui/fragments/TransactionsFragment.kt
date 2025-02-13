@@ -85,37 +85,34 @@ class TransactionsFragment : Fragment() {
         val amountString = binding.etAmount.text.toString()
         val date = binding.etDate.text.toString()
 
-        // Validación de campos
         if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
             try {
-                val amount = amountString.toDouble() // Validar número
+                val amount = amountString.toDouble()
 
-                // Asignar el tipo y el icono según la descripción o monto
                 val icon = when {
                     description.contains("restaurante", true) -> R.drawable.restaurante
                     description.contains("supermercado", true) -> R.drawable.supermercado
                     else -> R.drawable.otros
                 }
 
-                // Crear y agregar nueva transacción
                 val newTransaction = Transaction(
                     id = UUID.randomUUID().toString(),
                     description = description,
                     amount = amount,
                     date = date,
-                    icon = icon // Asignar el icono correspondiente
+                    icon = icon
                 )
 
-                transactionAdapter.addTransaction(newTransaction)
-                saveTransactions()
+                transactionsList.add(newTransaction)
+                transactionAdapter.notifyItemInserted(transactionsList.size - 1)
+
+                saveTransactions() // Guardamos las transacciones en SharedPreferences
 
                 Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
 
-                // Limpiar los campos
                 binding.etDescription.text?.clear()
                 binding.etAmount.text?.clear()
                 binding.etDate.text?.clear()
-
             } catch (e: NumberFormatException) {
                 Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
             }
@@ -123,7 +120,6 @@ class TransactionsFragment : Fragment() {
             Toast.makeText(requireContext(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun saveTransactions() {
         try {
             val sharedPreferences: SharedPreferences = requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
