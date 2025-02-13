@@ -2,4 +2,5 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="selected_item">#FFEB3B</color>  <!-- Color amarillo para item seleccionado -->
 </resources>
