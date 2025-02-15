@@ -3,127 +3,235 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#F5F5F5">
+    android:padding="20dp"
+    android:background="@drawable/fondoaplicacion">
 
     <TextView
-        android:id="@+id/tvSettingsTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Configuración"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
-
-    <!-- Selección de moneda -->
-    <TextView
-        android:id="@+id/tvCurrency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Moneda:"
-        android:textSize="18sp"
-        android:textColor="#000"
-        app:layout_constraintTop_toBottomOf="@id/tvSettingsTitle"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Spinner
-        android:id="@+id/spinnerCurrency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrency"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp" />
-
-    <!-- Modo oscuro -->
-    <TextView
-        android:id="@+id/tvDarkMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Modo Oscuro"
-        android:textSize="18sp"
-        android:textColor="#000"
-        app:layout_constraintTop_toBottomOf="@id/spinnerCurrency"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp" />
-
-    <Switch
-        android:id="@+id/switchDarkMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvDarkMode"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp" />
-
-    <!-- Presupuesto mensual -->
-    <TextView
-        android:id="@+id/tvBudget"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Presupuesto Mensual:"
-        android:textSize="18sp"
-        android:textColor="#000"
-        app:layout_constraintTop_toBottomOf="@id/switchDarkMode"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp" />
-
-    <EditText
-        android:id="@+id/etBudget"
+        android:id="@+id/tvTituloAjustes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:hint="Ingresa tu presupuesto"
-        app:layout_constraintTop_toBottomOf="@id/tvBudget"
+        android:text="Configuración"
+        android:textAlignment="center"
+        android:textSize="40sp"
+        android:layout_marginTop="30dp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Sección de moneda -->
+        <LinearLayout
+            android:id="@+id/lyMoneda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTituloAjustes">
+
+            <TextView
+                android:id="@+id/tvMoneda"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Moneda:"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:layout_marginEnd="12dp" />
+
+            <Spinner
+                android:id="@+id/spMoneda"
+                android:textColor="@color/white"
+                android:background="@drawable/spinner_background"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    <!-- Sección de modo oscuro -->
+        <LinearLayout
+            android:id="@+id/lyOscuro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lyMoneda">
+
+            <TextView
+                android:id="@+id/tvDarkMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Modo Oscuro"
+                android:textSize="15sp"
+                android:textColor="@color/white" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchDarkMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    <!-- Presupuesto mensual -->
+        <LinearLayout
+            android:id="@+id/lyPresupuesto"
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lyOscuro">
+
+            <TextView
+                android:id="@+id/tvPrespuesto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Presupuesto Mensual:"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/etPresupuesto"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/etPresupuesto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:background="@drawable/edittext_background"
+                android:hint="Ingresa tu presupuesto"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvPrespuesto"/>
+        </LinearLayout>
+
+    <!-- Sección de notificaciones -->
+    <LinearLayout
+        android:id="@+id/lyNotificaciones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintTop_toBottomOf="@id/lyPresupuesto">
 
-    <Button
-        android:id="@+id/btnSaveBudget"
+        <TextView
+            android:id="@+id/tvNotificaciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Notificaciones"
+            android:textSize="15sp"
+            android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchNotificaciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Sección de cambio de idioma -->
+    <LinearLayout
+        android:id="@+id/lyIdioma"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Guardar Presupuesto"
-        app:layout_constraintTop_toBottomOf="@id/etBudget"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lyNotificaciones">
+
+        <TextView
+            android:id="@+id/tvIdioma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Idioma:"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:layout_marginEnd="12dp" />
+
+        <Spinner
+            android:id="@+id/spIdioma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Botón para exportar datos -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnExportData"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"
+        android:text="Exportar Datos"
+        app:layout_constraintTop_toBottomOf="@id/lyIdioma"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="20dp" />
 
-    <!-- Restablecer datos -->
-    <Button
+
+    <!-- Botones -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveBudget"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primaryColor"
+        android:textColor="@color/white"
+        android:text="Guardar Presupuesto"
+        app:layout_constraintTop_toBottomOf="@id/btnExportData"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnResetData"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_height="wrap_content"
         android:text="Restablecer Datos"
         app:layout_constraintTop_toBottomOf="@id/btnSaveBudget"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:backgroundTint="@color/design_default_color_primary_dark"
-        android:textColor="#FFF" />
+        android:backgroundTint="@color/error"
+        android:textColor="@color/white" />
 
-    <!-- Acerca de la aplicación -->
+    <!-- Sección Acerca de -->
     <TextView
-        android:id="@+id/tvAbout"
+        android:id="@+id/tvAcercaDe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Acerca de la aplicación"
-        android:textSize="18sp"
+        android:textColor="@color/primary_text"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btnResetData"
+        app:layout_constraintBottom_toTopOf="@+id/tvAppInfo"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="30dp" />
+        android:layout_marginBottom="20dp"/>
 
     <TextView
         android:id="@+id/tvAppInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Gestor de Gastos v1.0\nDesarrollado por [Tu Nombre]"
+        android:textColor="@color/secondary_text"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/tvAbout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginBottom="20dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

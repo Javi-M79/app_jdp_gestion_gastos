@@ -1,64 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondoaplicacion"
     tools:context=".ui.activities.MainActivity">
 
-    <!-- Título de la app -->
-    <TextView
-        android:id="@+id/tvTitulo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="MyAPPGastos"
-        android:textColor="@color/black"
-        android:textAlignment="center"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        android:shadowColor="@color/white"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Logo flotante fuera del CardView pero parcialmente visible dentro -->
+    <!-- Imagen de fondo -->
     <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/logocasa"
-        android:elevation="40dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="75dp"
-        android:layout_marginBottom="60dp" /> <!-- Esto ayuda a que la mitad del logo quede dentro del CardView -->
-
-    <!-- CardView con formulario -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/ivFondo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginBottom="100dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo">
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/fondoaplicacion"/>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Título de la app -->
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="MyAPPGastos"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:textSize="50sp"
+            android:textStyle="bold"
+            android:shadowColor="@color/white"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Logo flotante fuera del CardView pero parcialmente visible dentro -->
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/logocasa"
+            android:elevation="40dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitulo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lyFormulario"/>
+
+        <!-- CardView con formulario -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/lyFormulario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/degradado_app"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitulo">
 
             <!-- Campo de email -->
             <EditText
@@ -66,7 +71,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Correo electrónico"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="10dp"
                 android:inputType="textEmailAddress"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -77,7 +82,7 @@
                 android:id="@+id/etPassword"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:hint="Contraseña"
                 android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -95,58 +100,91 @@
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/etPassword" />
-
-            <!-- Botón de login -->
-            <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Iniciar sesión"
-                android:textAllCaps="true"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvOlvidarContraseña" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/tvPregunta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="¿No eres miembro todavía?"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/tvCrearCuenta"
+            app:layout_constraintStart_toStartOf="@id/lyFormulario"
+            app:layout_constraintTop_toBottomOf="@id/lyFormulario" />
 
-    <!-- LinearLayout para los logos debajo del CardView -->
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardView">
+        <TextView
+            android:id="@+id/tvCrearCuenta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Crear Cuenta"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/lyFormulario"
+            app:layout_constraintStart_toEndOf="@id/tvPregunta"
+            app:layout_constraintTop_toBottomOf="@id/lyFormulario"/>
+        <!-- Botón de login -->
 
-        <!-- Logo de Gmail -->
-        <ImageView
-            android:id="@+id/ivGmail"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/google" />
+        <TextView
+            android:id="@+id/tvIngresar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="o puedes ingresar con..."
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPregunta" />
 
-        <!-- Logo de Meta (Facebook) -->
-        <ImageView
-            android:id="@+id/ivMeta"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:src="@drawable/manzana" />
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Iniciar sesión"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/lyFormulario"
+            app:layout_constraintStart_toStartOf="@id/lyFormulario"
+            app:layout_constraintTop_toBottomOf="@id/tvIngresar" />
 
-        <!-- Logo de Apple -->
-        <ImageView
-            android:id="@+id/ivApple"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/facebook" />
 
-    </LinearLayout>
+        <!-- LinearLayout para los logos debajo del CardView -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnLogin">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Logo de Gmail -->
+            <ImageView
+                android:id="@+id/ivGmail"
+                android:layout_marginRight="30dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/google" />
+
+            <!-- Logo de Meta (Facebook) -->
+            <ImageView
+                android:id="@+id/ivMeta"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="30dp"
+                android:src="@drawable/manzana" />
+
+            <!-- Logo de Apple -->
+            <ImageView
+                android:id="@+id/ivApple"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/facebook" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
