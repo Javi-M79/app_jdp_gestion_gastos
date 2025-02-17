@@ -37,11 +37,11 @@ class SettingsFragment : Fragment() {
         // Cargar moneda
         val currencies = arrayOf("USD ($)", "EUR (€)", "MXN ($)", "COP ($)", "ARS ($)")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, currencies)
-        binding.spinnerCurrency.adapter = adapter
+        binding.spMoneda.adapter = adapter
         val savedCurrency = sharedPreferences.getString("currency", "USD ($)")
-        binding.spinnerCurrency.setSelection(currencies.indexOf(savedCurrency))
+        binding.spMoneda.setSelection(currencies.indexOf(savedCurrency))
 
-        binding.spinnerCurrency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spMoneda.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 sharedPreferences.edit().putString("currency", currencies[position]).apply()
             }
@@ -59,7 +59,7 @@ class SettingsFragment : Fragment() {
 
         // Presupuesto mensual
         binding.btnSaveBudget.setOnClickListener {
-            val budget = binding.etBudget.text.toString()
+            val budget = binding.etPresupuesto.text.toString()
             if (budget.isNotEmpty()) {
                 sharedPreferences.edit().putFloat("monthlyBudget", budget.toFloat()).apply()
                 Toast.makeText(requireContext(), "Presupuesto guardado", Toast.LENGTH_SHORT).show()
@@ -72,6 +72,34 @@ class SettingsFragment : Fragment() {
         binding.btnResetData.setOnClickListener {
             sharedPreferences.edit().remove("transactions").apply()
             Toast.makeText(requireContext(), "Datos restablecidos", Toast.LENGTH_SHORT).show()
+        }
+
+        // Notificaciones
+        binding.switchNotificaciones.isChecked = sharedPreferences.getBoolean("notifications", true)
+        binding.switchNotificaciones.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit().putBoolean("notifications", isChecked).apply()
+            Toast.makeText(requireContext(), if (isChecked) "Notificaciones activadas" else "Notificaciones desactivadas", Toast.LENGTH_SHORT).show()
+        }
+
+        // Cambio de idioma
+        val languages = arrayOf("Español", "Inglés")
+        val languageAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, languages)
+        binding.spIdioma.adapter = languageAdapter
+        val savedLanguage = sharedPreferences.getString("language", "Español")
+        binding.spIdioma.setSelection(languages.indexOf(savedLanguage))
+
+        binding.spIdioma.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sharedPreferences.edit().putString("language", languages[position]).apply()
+                Toast.makeText(requireContext(), "Idioma cambiado a ${languages[position]}", Toast.LENGTH_SHORT).show()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Exportación de datos (Simulación)
+        binding.btnExportData.setOnClickListener {
+            Toast.makeText(requireContext(), "Exportando datos...", Toast.LENGTH_SHORT).show()
+            // Aquí puedes agregar la lógica real para exportar datos
         }
     }
 

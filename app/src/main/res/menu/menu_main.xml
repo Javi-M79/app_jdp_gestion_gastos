@@ -7,9 +7,14 @@
     <item
         android:id="@+id/statsFragment"
         android:icon="@drawable/estadisticas"
-        android:title="Stats" />
+        android:title="Estadísticas" />
     <item
         android:id="@+id/settingsFragment"
         android:icon="@drawable/ajustes"
-        android:title="Settings" />
+        android:title="Ajustes" />
+
+    <item
+        android:id="@+id/transactionsFragment"
+        android:icon="@drawable/transaccion"
+        android:title="Transacciones"/>
 </menu>

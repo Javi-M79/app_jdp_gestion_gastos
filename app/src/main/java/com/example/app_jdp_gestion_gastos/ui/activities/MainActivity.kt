@@ -12,10 +12,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.view.animation.ScaleAnimation
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvOlvidarPassword = findViewById<TextView>(R.id.tvOlvidarContraseña)
+        val fondoImagen = findViewById<ImageView>(R.id.ivFondo)
 
         // TODO: LOGICA
         // Eventos de boton login
@@ -71,6 +75,63 @@ class MainActivity : AppCompatActivity() {
                 resetPassword(email)
             }
         }
+
+        // Evento de zoom en el fondo Mail
+        etMail.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Zoom In
+                val zoomIn = ScaleAnimation (
+                    1.0f, 1.2f, // Escala en X
+                    1.0f, 1.2f, // Escala en Y
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF,0.5f
+                ).apply {
+                    duration = 300 // Duración en milisegundos
+                    fillAfter = true // mantien el estado final
+                }
+                fondoImagen.startAnimation(zoomIn)
+            }else {
+                // Zoom Out
+                val zoomOut = ScaleAnimation(
+                    1.2f, 1.0f,
+                    1.2f, 1.0f,
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f
+                ).apply {
+                    duration = 300
+                    fillAfter = true
+                }
+                fondoImagen.startAnimation(zoomOut)
+            }
+        }
+        etPassword.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Zoom In
+                val zoomIn = ScaleAnimation (
+                    1.0f, 1.2f, // Escala en X
+                    1.0f, 1.2f, // Escala en Y
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF,0.5f
+                ).apply {
+                    duration = 300 // Duración en milisegundos
+                    fillAfter = true // mantien el estado final
+                }
+                fondoImagen.startAnimation(zoomIn)
+            }else {
+                // Zoom Out
+                val zoomOut = ScaleAnimation(
+                    1.2f, 1.0f,
+                    1.2f, 1.0f,
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f
+                ).apply {
+                    duration = 300
+                    fillAfter = true
+                }
+                fondoImagen.startAnimation(zoomOut)
+            }
+        }
+
     }
 
     private fun loginUser(email: String, password: String) {

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="selected_item">#FFEB3B</color>  <!-- Color amarillo para item seleccionado -->
+    <color name="selected_item">#00FFEB3B</color>  <!-- Color amarillo para item seleccionado -->
+    <color name="primary_text">#333333</color>
+    <color name="secondary_text">#666666</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="error">#D32F2F</color>
+    <color name="guardarPresupuesto">#01579B</color>
+    <color name="primaryColor">#4CAF50</color> <!-- Verde para bordes -->
+    <color name="inputBackground">#80FFFFFF</color> <!-- Fondo semi-transparente -->
+    <color name="gray">#757575</color> <!-- Hint en gris -->
+    <color name="black">#000000</color> <!-- Texto en negro -->
 </resources>

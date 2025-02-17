@@ -52,6 +52,9 @@ class TransactionsFragment : Fragment() {
 
         loadTransactions() // Cargamos las transacciones guardadas
 
+        // Habilitar/deshabilitar el botón de eliminar dependiendo de si hay transacciones
+        binding.btnDeleteTransaction.isEnabled = transactionsList.isNotEmpty()
+
         // Configurar DatePicker
         binding.etDate.setOnClickListener { showDatePickerDialog() }
 
@@ -66,7 +69,6 @@ class TransactionsFragment : Fragment() {
             binding.btnDeleteTransaction.isEnabled = isSelected
         }
     }
-
     private fun showDatePickerDialog() {
         DatePickerDialog(
             requireContext(),
@@ -113,14 +115,17 @@ class TransactionsFragment : Fragment() {
                 binding.etDescription.text?.clear()
                 binding.etAmount.text?.clear()
                 binding.etDate.text?.clear()
+
+                // Habilitar el botón de eliminar si la lista no está vacía
+                binding.btnDeleteTransaction.isEnabled = transactionsList.isNotEmpty()
+
             } catch (e: NumberFormatException) {
                 Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(requireContext(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
         }
-    }
-    private fun saveTransactions() {
+    }    private fun saveTransactions() {
         try {
             val sharedPreferences: SharedPreferences = requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
@@ -150,6 +155,10 @@ class TransactionsFragment : Fragment() {
             } else {
                 Log.d("TransactionsFragment", "No hay transacciones guardadas")
             }
+
+            // Habilitar/deshabilitar el botón de eliminar basado en si la lista está vacía
+            binding.btnDeleteTransaction.isEnabled = transactionsList.isNotEmpty()
+
         } catch (e: Exception) {
             Log.e("TransactionsFragment", "Error al cargar transacciones: ${e.message}")
         }
@@ -171,12 +180,14 @@ class TransactionsFragment : Fragment() {
             // Después, actualizamos las transacciones guardadas
             saveTransactions()
 
+            // Habilitar/deshabilitar el botón de eliminar basado en si la lista está vacía
+            binding.btnDeleteTransaction.isEnabled = transactionsList.isNotEmpty()
+
             Toast.makeText(requireContext(), "Transacción eliminada", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(requireContext(), "Por favor, selecciona una transacción", Toast.LENGTH_SHORT).show()
         }
-    }
-    override fun onDestroyView() {
+    }    override fun onDestroyView() {
         super.onDestroyView()
         saveTransactions()
         _binding = null

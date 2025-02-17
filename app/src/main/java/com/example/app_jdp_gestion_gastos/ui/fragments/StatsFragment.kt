@@ -65,8 +65,8 @@ class StatsFragment : Fragment() {
         val numTransacciones = transactionsList.size
 
         // Actualizamos los TextViews con las estadísticas calculadas
-        binding.tvTotalGastos.text = "Total de Gastos: $${"%.2f".format(totalGastos)}"
-        binding.tvPromedioGastos.text = "Promedio de Gastos: $${"%.2f".format(promedioGastos)}"
+        binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(totalGastos)} €"
+        binding.tvPromedioGastos.text = "Promedio de Gastos: ${"%.2f".format(promedioGastos)} €"
         binding.tvNumTransacciones.text = "Número de Transacciones: $numTransacciones"
     }
     override fun onDestroyView() {
