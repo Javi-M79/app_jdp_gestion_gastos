@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><selector xmlns:android="http://schemas.android.com/apk/res/android">    <!-- Color cuando el botón está habilitado -->    <item android:color="@color/error" android:state_enabled="true"/>    <!-- Color cuando el botón está deshabilitado -->    <item android:color="@color/selected_item" android:state_enabled="false"/></selector>

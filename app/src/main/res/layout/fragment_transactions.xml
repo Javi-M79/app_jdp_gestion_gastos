@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondoaplicacion"
+    android:background="@drawable/fondoapp"
     tools:context=".ui.fragments.TransactionsFragment">
 
     <!-- RecyclerView para mostrar las transacciones -->
@@ -96,7 +96,7 @@
             android:layout_marginTop="16dp"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:backgroundTint="@color/common_google_signin_btn_text_dark"
+            android:backgroundTint="@color/colores_boton_eliminar"
             app:icon="@drawable/papelera"
             app:iconTint="@color/white"
             app:iconGravity="textStart"

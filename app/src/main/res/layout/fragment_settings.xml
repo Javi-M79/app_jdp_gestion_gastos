@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
-    android:background="@drawable/fondoaplicacion">
+    android:background="@drawable/fondoapp">
 
     <TextView
         android:id="@+id/tvTituloAjustes"
@@ -224,9 +224,10 @@
 
     <TextView
         android:id="@+id/tvAppInfo"
+        android:textAlignment="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Gestor de Gastos v1.0\nDesarrollado por [Tu Nombre]"
+        android:text="Gestor de Gastos v1.0\nDesarrollado por David Serrano,\nJavier Mira y Pablo Silva"
         android:textColor="@color/secondary_text"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
