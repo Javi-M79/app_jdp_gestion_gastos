@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:text="MyAPPGastos"
+            android:text="JDP Finance"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="50sp"
