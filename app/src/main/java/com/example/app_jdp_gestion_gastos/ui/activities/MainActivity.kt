@@ -34,10 +34,23 @@ class MainActivity : AppCompatActivity() {
         // 🔥 Ahora podemos inicializar Firestore
         db = FirebaseFirestore.getInstance()
 
-        // 🔥 Configurar ViewBinding correctamente
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Prueba listado de usuarios.
+        db.collection("users").get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val nombre = document.getString("nombre") ?: "Sin nombre"
+                    val email = document.getString("email") ?: "Sin email"
+                    val uid = document.getString("uid") ?: "Sin UID"
+
+                    Log.d("Firestore", "Usuario: $uid => Nombre: $nombre, Email: $email")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Error al obtener usuarios", exception)
+            }
 
         // TODO: Activar modo inmersivo (Desactivar barra de estado)
         window.decorView.systemUiVisibility = (
