@@ -2,14 +2,7 @@ package com.example.app_jdp_gestion_gastos.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
+import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.animation.ScaleAnimation
@@ -18,20 +11,33 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.appcompat.app.AppCompatActivity
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.databinding.ActivityMainBinding
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 🔥 Inicializa Firebase ANTES de cualquier otra acción
+        FirebaseApp.initializeApp(this)
 
+        // 🔥 Ahora podemos inicializar Firestore
+        db = FirebaseFirestore.getInstance()
+
+        // 🔥 Configurar ViewBinding correctamente
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
 
         // TODO: Activar modo inmersivo (Desactivar barra de estado)
         window.decorView.systemUiVisibility = (
@@ -40,7 +46,6 @@ class MainActivity : AppCompatActivity() {
                         or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 )
 
-        setContentView(binding.root)
 
         // TODO: VARIABLES
         // Animación del titulo
@@ -60,7 +65,8 @@ class MainActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT)
+                    .show()
             } else {
                 loginUser(email, password)
             }
@@ -70,7 +76,11 @@ class MainActivity : AppCompatActivity() {
         tvOlvidarPassword.setOnClickListener {
             val email = etMail.text.toString().trim()
             if (email.isEmpty()) {
-                Toast.makeText(this, "Ingresa tu correo para recuperar la contraseña", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Ingresa tu correo para recuperar la contraseña",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 resetPassword(email)
             }
@@ -80,17 +90,17 @@ class MainActivity : AppCompatActivity() {
         etMail.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 // Zoom In
-                val zoomIn = ScaleAnimation (
+                val zoomIn = ScaleAnimation(
                     1.0f, 1.2f, // Escala en X
                     1.0f, 1.2f, // Escala en Y
                     ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,0.5f
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f
                 ).apply {
                     duration = 300 // Duración en milisegundos
                     fillAfter = true // mantien el estado final
                 }
                 fondoImagen.startAnimation(zoomIn)
-            }else {
+            } else {
                 // Zoom Out
                 val zoomOut = ScaleAnimation(
                     1.2f, 1.0f,
@@ -107,17 +117,17 @@ class MainActivity : AppCompatActivity() {
         etPassword.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 // Zoom In
-                val zoomIn = ScaleAnimation (
+                val zoomIn = ScaleAnimation(
                     1.0f, 1.2f, // Escala en X
                     1.0f, 1.2f, // Escala en Y
                     ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,0.5f
+                    ScaleAnimation.RELATIVE_TO_SELF, 0.5f
                 ).apply {
                     duration = 300 // Duración en milisegundos
                     fillAfter = true // mantien el estado final
                 }
                 fondoImagen.startAnimation(zoomIn)
-            }else {
+            } else {
                 // Zoom Out
                 val zoomOut = ScaleAnimation(
                     1.2f, 1.0f,
@@ -157,9 +167,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetPassword(email: String) {
         auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener{ task ->
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Se ha enviado un correo de recuperación", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Se ha enviado un correo de recuperación",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     Toast.makeText(this, "Error al enviar el correo", Toast.LENGTH_SHORT).show()
                 }
