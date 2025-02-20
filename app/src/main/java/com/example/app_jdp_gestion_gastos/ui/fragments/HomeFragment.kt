@@ -8,9 +8,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import android.widget.CalendarView
 import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
@@ -95,6 +96,9 @@ class HomeFragment : Fragment() {
                         highlightTransactionDays() // Actualizamos el calendario
                         showTransactionsForDate(date) // Mostramos las transacciones para la fecha seleccionada
 
+                        // Actualizar el TextView con los nuevos gastos
+                        updateExpenseText()
+
                         Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
 
                     } catch (e: NumberFormatException) {
@@ -124,6 +128,7 @@ class HomeFragment : Fragment() {
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error al cargar transacciones", Toast.LENGTH_SHORT).show()
         }
+        updateExpenseText() // Actualiza los gastos y presupuesto
     }
 
     private fun saveTransactions() {
@@ -182,6 +187,49 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun updateExpenseText() {
+        // Cargar el presupuesto desde SharedPreferences
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        val monthlyBudget = sharedPreferences.getFloat("monthlyBudget", 0f)
+
+        // Calcular el total de los gastos
+        val totalExpenses = transactionsList.sumOf { it.amount }
+
+        // Actualizar el TextView con el gasto y el presupuesto
+        binding.tvPresupuesto.text = "Gastos: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
+
+        // Comprobar si el gasto ha alcanzado el 80% del presupuesto
+        if (totalExpenses >= monthlyBudget * 0.8) {
+            showBudgetWarningDialog(totalExpenses, monthlyBudget)
+        }
+    }
+
+    private fun showBudgetWarningDialog(totalExpenses: Double, monthlyBudget: Float) {
+        val progress = (totalExpenses / monthlyBudget * 100).toInt()
+
+        // Elegir el color según el porcentaje
+        val color = when {
+            progress < 60 -> Color.GREEN
+            progress in 60..80 -> Color.MAGENTA
+            else -> Color.RED
+        }
+
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_budget_warning, null)
+        val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
+        val textViewMessage = dialogView.findViewById<TextView>(R.id.tvWarningMessage)
+
+        progressBar.max = 100
+        progressBar.progress = progress
+        textViewMessage.text = "Has alcanzado el $progress% de tu presupuesto mensual.\nGastos actuales: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
+        textViewMessage.setTextColor(color)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("¡Atención!")
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
