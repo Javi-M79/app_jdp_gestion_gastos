@@ -10,7 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import android.widget.CalendarView
+import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
 import com.example.app_jdp_gestion_gastos.databinding.FragmentHomeBinding
 import com.google.common.reflect.TypeToken
@@ -47,6 +49,63 @@ class HomeFragment : Fragment() {
 
         // Resaltar los días con transacciones
         highlightTransactionDays()
+
+        // Configurar el FloatingActionButton para agregar una nueva transacción
+        binding.btnTransaction.setOnClickListener {
+            showAddTransactionDialog()
+        }
+    }
+
+    private fun showAddTransactionDialog() {
+        // Crear un diálogo con campos de entrada para la nueva transacción
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_transaction, null)
+        val descriptionEditText = dialogView.findViewById<EditText>(R.id.etDescription)
+        val amountEditText = dialogView.findViewById<EditText>(R.id.etAmount)
+        val dateEditText = dialogView.findViewById<EditText>(R.id.etDate)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Añadir Transacción")
+            .setView(dialogView)
+            .setPositiveButton("Añadir") { _, _ ->
+                val description = descriptionEditText.text.toString()
+                val amountString = amountEditText.text.toString()
+                val date = dateEditText.text.toString()
+
+                if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
+                    try {
+                        val amount = amountString.toDouble()
+
+                        val icon = when {
+                            description.contains("restaurante", true) -> R.drawable.restaurante
+                            description.contains("supermercado", true) -> R.drawable.supermercado
+                            else -> R.drawable.otros
+                        }
+
+                        val newTransaction = Transaction(
+                            id = UUID.randomUUID().toString(),
+                            description = description,
+                            amount = amount,
+                            date = date,
+                            icon = icon
+                        )
+
+                        // Añadir la transacción a la lista
+                        transactionsList.add(newTransaction)
+                        saveTransactions() // Guardamos las transacciones
+                        highlightTransactionDays() // Actualizamos el calendario
+                        showTransactionsForDate(date) // Mostramos las transacciones para la fecha seleccionada
+
+                        Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
+
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun loadTransactions() {
@@ -64,6 +123,20 @@ class HomeFragment : Fragment() {
             }
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error al cargar transacciones", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveTransactions() {
+        try {
+            val sharedPreferences: SharedPreferences =
+                requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            val gson = Gson()
+            val json = gson.toJson(transactionsList)
+            editor.putString("transactions", json)
+            editor.apply()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error al guardar transacciones", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -104,7 +177,7 @@ class HomeFragment : Fragment() {
 
                 // Resaltar el día en el calendario
                 calendarView.setDate(calendar.timeInMillis, false, true)
-                calendarView.setBackgroundColor(Color.YELLOW) // Color de resaltado (puedes cambiarlo)
+                calendarView.setBackgroundColor(Color.YELLOW) // Color de resaltado
             }
         }
     }
