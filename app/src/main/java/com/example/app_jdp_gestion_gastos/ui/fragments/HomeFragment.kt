@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +16,7 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
@@ -58,7 +63,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun showAddTransactionDialog() {
-        // Crear un diálogo con campos de entrada para la nueva transacción
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_transaction, null)
         val descriptionEditText = dialogView.findViewById<EditText>(R.id.etDescription)
         val amountEditText = dialogView.findViewById<EditText>(R.id.etAmount)
@@ -75,6 +79,7 @@ class HomeFragment : Fragment() {
                 if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
                     try {
                         val amount = amountString.toDouble()
+                        val type = if (amount >= 0) "ingreso" else "gasto"
 
                         val icon = when {
                             description.contains("restaurante", true) -> R.drawable.restaurante
@@ -87,20 +92,17 @@ class HomeFragment : Fragment() {
                             description = description,
                             amount = amount,
                             date = date,
+                            type = type,
                             icon = icon
                         )
 
-                        // Añadir la transacción a la lista
                         transactionsList.add(newTransaction)
-                        saveTransactions() // Guardamos las transacciones
-                        highlightTransactionDays() // Actualizamos el calendario
-                        showTransactionsForDate(date) // Mostramos las transacciones para la fecha seleccionada
-
-                        // Actualizar el TextView con los nuevos gastos
+                        saveTransactions()
+                        highlightTransactionDays()
+                        showTransactionsForDate(date)
                         updateExpenseText()
 
                         Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
-
                     } catch (e: NumberFormatException) {
                         Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
                     }
@@ -111,7 +113,6 @@ class HomeFragment : Fragment() {
             .setNegativeButton("Cancelar", null)
             .show()
     }
-
     private fun loadTransactions() {
         try {
             val sharedPreferences: SharedPreferences =
@@ -152,16 +153,39 @@ class HomeFragment : Fragment() {
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Transacciones del $selectedDate")
 
-            val message = transactionsForDate.joinToString("\n") { "${it.description}: ${"%.2f".format(it.amount)} €" }
-            builder.setMessage(message)
+            val spannableBuilder = SpannableStringBuilder()
+
+            transactionsForDate.forEach { transaction ->
+                val transactionText = "${transaction.description}: "
+                val colorTransaction = "${"%.2f".format(transaction.amount)} € (${transaction.type})\n"
+
+                val color = if (transaction.type == "ingreso")
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+                else
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)
+
+                // Agregar la descripción sin color
+                spannableBuilder.append(transactionText)
+
+                // Agregar la parte coloreada
+                val spannableString = SpannableString(colorTransaction)
+                spannableString.setSpan(
+                    ForegroundColorSpan(color),
+                    0,
+                    colorTransaction.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                spannableBuilder.append(spannableString)
+            }
+
+            builder.setMessage(spannableBuilder)
             builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
             builder.show()
         } else {
             Toast.makeText(requireContext(), "No hay transacciones en esta fecha", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun highlightTransactionDays() {
+    }    private fun highlightTransactionDays() {
         val calendarView = binding.calendarView
 
         // Obtener las fechas de las transacciones

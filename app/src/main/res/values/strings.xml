@@ -8,7 +8,7 @@
     <string name="previous">Previous</string>
 
     <string-array name="SpinnerTransaction">
-        <item>Gasto</item>
-        <item>Ingreso</item>
+        <item>gasto</item>
+        <item>ingreso</item>
     </string-array>
 </resources>
