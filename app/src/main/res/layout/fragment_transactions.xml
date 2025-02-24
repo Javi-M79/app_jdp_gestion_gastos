@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondoapp"
     tools:context=".ui.fragments.TransactionsFragment">
 
     <!-- RecyclerView para mostrar las transacciones -->
@@ -28,6 +27,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="16dp">
+
+        <Spinner
+            android:id="@+id/spinnerTransactionType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/SpinnerTransaction"
+            android:layout_marginBottom="10dp"/>
 
         <!-- Descripción -->
         <com.google.android.material.textfield.TextInputLayout

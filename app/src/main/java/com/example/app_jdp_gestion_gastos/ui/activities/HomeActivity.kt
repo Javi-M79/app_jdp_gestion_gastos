@@ -19,7 +19,13 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Mostramos el correo del usuario en el Activity
+        val saludoUsuario = intent.getStringExtra("usuario") ?: "Default"
+        binding.tvSaludoUsuario.text = "Bienvenido, $saludoUsuario"
+
         // Configurar Navigation Component con BottomNavigationView
+        binding.btnNavegacion.itemIconTintList = null
+
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
@@ -27,5 +33,10 @@ class HomeActivity : AppCompatActivity() {
         // Asignar BottomNavigationView al controlador de navegación
         val bottomNavView: BottomNavigationView = binding.btnNavegacion
         bottomNavView.setupWithNavController(navController)
+
+        // TODO: BOTON LOGOUT
+        binding.btnLogOut.setOnClickListener{
+            finish()
+        }
     }
 }
