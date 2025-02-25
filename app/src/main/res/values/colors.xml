@@ -11,4 +11,5 @@
     <color name="inputBackground">#80FFFFFF</color> <!-- Fondo semi-transparente -->
     <color name="gray">#757575</color> <!-- Hint en gris -->
     <color name="black">#000000</color> <!-- Texto en negro -->
+    <color name="btnLogin">#F1A68E</color>
 </resources>

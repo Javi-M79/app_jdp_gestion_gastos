@@ -7,9 +7,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.databinding.ActivityHomeBinding
+import com.example.app_jdp_gestion_gastos.ui.dialog.LogoutDialogo
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener {
 
     private lateinit var binding: ActivityHomeBinding
     private lateinit var navController: NavController
@@ -36,7 +37,14 @@ class HomeActivity : AppCompatActivity() {
 
         // TODO: BOTON LOGOUT
         binding.btnLogOut.setOnClickListener{
-            finish()
+            val dialogo: LogoutDialogo = LogoutDialogo()
+            dialogo.show(supportFragmentManager, null)
+            // TODO: CERRAR LA APLICACIÓN AL HACER CLICK EN EL BOTÓN LOGOUT
         }
+    }
+
+    // Implementar el listener para el diálogo de logout
+    override fun dialogoLogOutSelected() {
+        finish()
     }
 }

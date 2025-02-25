@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.example.app_jdp_gestion_gastos.databinding.FragmentSettingsBinding
+import com.example.login.ui.dialog.AyudaDialogo
 
 class SettingsFragment : Fragment() {
 
@@ -100,6 +101,12 @@ class SettingsFragment : Fragment() {
         binding.btnExportData.setOnClickListener {
             Toast.makeText(requireContext(), "Exportando datos...", Toast.LENGTH_SHORT).show()
             // Aquí puedes agregar la lógica real para exportar datos
+        }
+
+        // TODO: Ayuda
+        binding.btnyuda.setOnClickListener {
+            val dialogo: AyudaDialogo = AyudaDialogo()
+            dialogo.show(requireActivity().supportFragmentManager, null)
         }
     }
 

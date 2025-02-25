@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><resources>    <style name="DialogAnimation">        <item name="android:windowEnterAnimation">@anim/slide_in</item>        <item name="android:windowExitAnimation">@anim/slide_out</item>    </style></resources>

@@ -5,10 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +12,11 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
 import com.example.app_jdp_gestion_gastos.databinding.FragmentHomeBinding
+import com.example.app_jdp_gestion_gastos.ui.dialog.TransactionDialog
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
@@ -150,42 +146,13 @@ class HomeFragment : Fragment() {
         val transactionsForDate = transactionsList.filter { it.date == selectedDate }
 
         if (transactionsForDate.isNotEmpty()) {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Transacciones del $selectedDate")
-
-            val spannableBuilder = SpannableStringBuilder()
-
-            transactionsForDate.forEach { transaction ->
-                val transactionText = "${transaction.description}: "
-                val colorTransaction = "${"%.2f".format(transaction.amount)} € (${transaction.type})\n"
-
-                val color = if (transaction.type == "ingreso")
-                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
-                else
-                    ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)
-
-                // Agregar la descripción sin color
-                spannableBuilder.append(transactionText)
-
-                // Agregar la parte coloreada
-                val spannableString = SpannableString(colorTransaction)
-                spannableString.setSpan(
-                    ForegroundColorSpan(color),
-                    0,
-                    colorTransaction.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
-                spannableBuilder.append(spannableString)
-            }
-
-            builder.setMessage(spannableBuilder)
-            builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            builder.show()
+            val dialog = TransactionDialog(selectedDate, transactionsForDate)
+            dialog.show(parentFragmentManager, "TransactionDialog")
         } else {
             Toast.makeText(requireContext(), "No hay transacciones en esta fecha", Toast.LENGTH_SHORT).show()
         }
-    }    private fun highlightTransactionDays() {
+    }
+    private fun highlightTransactionDays() {
         val calendarView = binding.calendarView
 
         // Obtener las fechas de las transacciones
