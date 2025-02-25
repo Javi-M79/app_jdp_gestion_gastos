@@ -8,11 +8,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
-import android.widget.CalendarView
 import androidx.fragment.app.Fragment
+import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Transaction
 import com.example.app_jdp_gestion_gastos.databinding.FragmentHomeBinding
+import com.example.app_jdp_gestion_gastos.ui.dialog.TransactionDialog
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
@@ -47,8 +51,64 @@ class HomeFragment : Fragment() {
 
         // Resaltar los días con transacciones
         highlightTransactionDays()
+
+        // Configurar el FloatingActionButton para agregar una nueva transacción
+        binding.btnTransaction.setOnClickListener {
+            showAddTransactionDialog()
+        }
     }
 
+    private fun showAddTransactionDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_transaction, null)
+        val descriptionEditText = dialogView.findViewById<EditText>(R.id.etDescription)
+        val amountEditText = dialogView.findViewById<EditText>(R.id.etAmount)
+        val dateEditText = dialogView.findViewById<EditText>(R.id.etDate)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Añadir Transacción")
+            .setView(dialogView)
+            .setPositiveButton("Añadir") { _, _ ->
+                val description = descriptionEditText.text.toString()
+                val amountString = amountEditText.text.toString()
+                val date = dateEditText.text.toString()
+
+                if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
+                    try {
+                        val amount = amountString.toDouble()
+                        val type = if (amount >= 0) "ingreso" else "gasto"
+
+                        val icon = when {
+                            description.contains("restaurante", true) -> R.drawable.restaurante
+                            description.contains("supermercado", true) -> R.drawable.supermercado
+                            else -> R.drawable.otros
+                        }
+
+                        val newTransaction = Transaction(
+                            id = UUID.randomUUID().toString(),
+                            description = description,
+                            amount = amount,
+                            date = date,
+                            type = type,
+                            icon = icon
+                        )
+
+                        transactionsList.add(newTransaction)
+                        saveTransactions()
+                        highlightTransactionDays()
+                        showTransactionsForDate(date)
+                        updateExpenseText()
+
+                        Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
     private fun loadTransactions() {
         try {
             val sharedPreferences: SharedPreferences =
@@ -65,24 +125,33 @@ class HomeFragment : Fragment() {
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error al cargar transacciones", Toast.LENGTH_SHORT).show()
         }
+        updateExpenseText() // Actualiza los gastos y presupuesto
+    }
+
+    private fun saveTransactions() {
+        try {
+            val sharedPreferences: SharedPreferences =
+                requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            val gson = Gson()
+            val json = gson.toJson(transactionsList)
+            editor.putString("transactions", json)
+            editor.apply()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error al guardar transacciones", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showTransactionsForDate(selectedDate: String) {
         val transactionsForDate = transactionsList.filter { it.date == selectedDate }
 
         if (transactionsForDate.isNotEmpty()) {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Transacciones del $selectedDate")
-
-            val message = transactionsForDate.joinToString("\n") { "${it.description}: ${"%.2f".format(it.amount)} €" }
-            builder.setMessage(message)
-            builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            builder.show()
+            val dialog = TransactionDialog(selectedDate, transactionsForDate)
+            dialog.show(parentFragmentManager, "TransactionDialog")
         } else {
             Toast.makeText(requireContext(), "No hay transacciones en esta fecha", Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun highlightTransactionDays() {
         val calendarView = binding.calendarView
 
@@ -104,11 +173,53 @@ class HomeFragment : Fragment() {
 
                 // Resaltar el día en el calendario
                 calendarView.setDate(calendar.timeInMillis, false, true)
-                calendarView.setBackgroundColor(Color.YELLOW) // Color de resaltado (puedes cambiarlo)
             }
         }
     }
 
+    private fun updateExpenseText() {
+        // Cargar el presupuesto desde SharedPreferences
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        val monthlyBudget = sharedPreferences.getFloat("monthlyBudget", 0f)
+
+        // Calcular el total de los gastos
+        val totalExpenses = transactionsList.sumOf { it.amount }
+
+        // Actualizar el TextView con el gasto y el presupuesto
+        binding.tvPresupuesto.text = "Gastos: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
+
+        // Comprobar si el gasto ha alcanzado el 80% del presupuesto
+        if (totalExpenses >= monthlyBudget * 0.8) {
+            showBudgetWarningDialog(totalExpenses, monthlyBudget)
+        }
+    }
+
+    private fun showBudgetWarningDialog(totalExpenses: Double, monthlyBudget: Float) {
+        val progress = (totalExpenses / monthlyBudget * 100).toInt()
+
+        // Elegir el color según el porcentaje
+        val color = when {
+            progress < 60 -> Color.GREEN
+            progress in 60..80 -> Color.MAGENTA
+            else -> Color.RED
+        }
+
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_budget_warning, null)
+        val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
+        val textViewMessage = dialogView.findViewById<TextView>(R.id.tvWarningMessage)
+
+        progressBar.max = 100
+        progressBar.progress = progress
+        textViewMessage.text = "Has alcanzado el $progress% de tu presupuesto mensual.\nGastos actuales: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
+        textViewMessage.setTextColor(color)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("¡Atención!")
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

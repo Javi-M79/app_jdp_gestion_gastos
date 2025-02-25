@@ -173,8 +173,9 @@ class MainActivity : AppCompatActivity() {
         // TODO: NORMAL
         if (email == "admin" && password == "admin") {
             Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
+            val intent = Intent(applicationContext, HomeActivity::class.java)
+            intent.putExtra("usuario", email)
+            startActivity(intent)
         }
     }
 
