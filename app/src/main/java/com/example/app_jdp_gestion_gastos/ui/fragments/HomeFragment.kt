@@ -173,7 +173,6 @@ class HomeFragment : Fragment() {
 
                 // Resaltar el día en el calendario
                 calendarView.setDate(calendar.timeInMillis, false, true)
-                calendarView.setBackgroundColor(Color.YELLOW) // Color de resaltado
             }
         }
     }

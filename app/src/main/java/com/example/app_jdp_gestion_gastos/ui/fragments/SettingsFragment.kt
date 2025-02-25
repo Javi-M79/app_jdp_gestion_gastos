@@ -82,21 +82,6 @@ class SettingsFragment : Fragment() {
             Toast.makeText(requireContext(), if (isChecked) "Notificaciones activadas" else "Notificaciones desactivadas", Toast.LENGTH_SHORT).show()
         }
 
-        // Cambio de idioma
-        val languages = arrayOf("Español", "Inglés")
-        val languageAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, languages)
-        binding.spIdioma.adapter = languageAdapter
-        val savedLanguage = sharedPreferences.getString("language", "Español")
-        binding.spIdioma.setSelection(languages.indexOf(savedLanguage))
-
-        binding.spIdioma.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                sharedPreferences.edit().putString("language", languages[position]).apply()
-                Toast.makeText(requireContext(), "Idioma cambiado a ${languages[position]}", Toast.LENGTH_SHORT).show()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
         // Exportación de datos (Simulación)
         binding.btnExportData.setOnClickListener {
             Toast.makeText(requireContext(), "Exportando datos...", Toast.LENGTH_SHORT).show()
