@@ -12,13 +12,11 @@ import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 
-
 class StatsFragment : Fragment() {
 
     private var _binding: FragmentStatsBinding? = null
     private val binding get() = _binding!!
 
-    // Aquí almacenamos las transacciones (puedes sustituir esto por Firebase o base de datos)
     private val transactionsList = mutableListOf<Transaction>()
 
     override fun onCreateView(
@@ -31,12 +29,13 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Cargar las transacciones guardadas
         loadTransactions()
-
-        // Llamamos a la función para actualizar las estadísticas
         updateStats()
+    }
+
+    fun reloadStats() {
+        loadTransactions()  // Recargar las transacciones desde SharedPreferences
+        updateStats()       // Actualizar las estadísticas
     }
 
     private fun loadTransactions() {
@@ -47,7 +46,7 @@ class StatsFragment : Fragment() {
             val type = object : TypeToken<MutableList<Transaction>>() {}.type
             val savedTransactions: MutableList<Transaction>? = gson.fromJson(json, type)
 
-            if (!savedTransactions.isNullOrEmpty()) {
+            if (savedTransactions != null) {
                 transactionsList.clear()
                 transactionsList.addAll(savedTransactions)
             }
@@ -55,6 +54,7 @@ class StatsFragment : Fragment() {
             Log.e("StatsFragment", "Error al cargar transacciones: ${e.message}")
         }
     }
+
     private fun updateStats() {
         val totalGastos = transactionsList.sumByDouble { it.amount }
         val promedioGastos = if (transactionsList.isNotEmpty()) {
@@ -69,6 +69,7 @@ class StatsFragment : Fragment() {
         binding.tvPromedioGastos.text = "Promedio de Gastos: ${"%.2f".format(promedioGastos)} €"
         binding.tvNumTransacciones.text = "Número de Transacciones: $numTransacciones"
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

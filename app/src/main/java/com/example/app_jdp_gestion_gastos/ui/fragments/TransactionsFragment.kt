@@ -86,6 +86,7 @@ class TransactionsFragment : Fragment() {
         val description = binding.etDescription.text.toString()
         val amountString = binding.etAmount.text.toString()
         val date = binding.etDate.text.toString()
+        val transactionType = binding.spinnerTransactionType.selectedItem.toString() // Obtener tipo del Spinner
 
         if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
             try {
@@ -102,6 +103,7 @@ class TransactionsFragment : Fragment() {
                     description = description,
                     amount = amount,
                     date = date,
+                    type = transactionType, // Guardamos el tipo de dato
                     icon = icon
                 )
 

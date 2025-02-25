@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/homeFragment"
-        android:icon="@drawable/inicio"
-        android:title="Home"/>
-    <item
         android:id="@+id/statsFragment"
         android:icon="@drawable/estadisticas"
         android:title="Estadísticas" />
-    <item
-        android:id="@+id/settingsFragment"
-        android:icon="@drawable/ajustes"
-        android:title="Ajustes" />
 
     <item
         android:id="@+id/transactionsFragment"
         android:icon="@drawable/transaccion"
         android:title="Transacciones"/>
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/inicio"
+        android:title="Home"/>
+
+    <item
+        android:id="@+id/groupsFragment"
+        android:icon="@drawable/grupo"
+        android:title="Grupos"/>
+
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ajustes"
+        android:title="Ajustes" />
+
+
 </menu>

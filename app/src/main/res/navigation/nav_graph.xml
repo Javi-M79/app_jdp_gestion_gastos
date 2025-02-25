@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/statsFragment">
 
     <fragment
         android:id="@+id/homeFragment"
@@ -47,6 +47,11 @@
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.TransactionsFragment"
         android:label="fragment_transactions"
         tools:layout="@layout/fragment_transactions" />
+    <fragment
+        android:id="@+id/groupsFragment"
+        android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GroupsFragment"
+        android:label="fragment_groups"
+        tools:layout="@layout/fragment_groups" />
 
 
 </navigation>
