@@ -1,5 +1,4 @@
 package com.example.app_jdp_gestion_gastos.data.model
-
 import com.google.firebase.firestore.PropertyName
 
 
