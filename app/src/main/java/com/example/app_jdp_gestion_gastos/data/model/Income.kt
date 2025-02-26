@@ -1,4 +1,19 @@
 package com.example.app_jdp_gestion_gastos.data.model
 
-class Income {
-}
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
+
+data class Income(
+    @get:PropertyName("userId") @set:PropertyName("userId") var userId: String = "",
+    @get:PropertyName("name") @set:PropertyName("name") var name: String = "",
+    @get:PropertyName("amount") @set:PropertyName("amount") var amount: Double = 0.0,
+    @get:PropertyName("date") @set:PropertyName("date") var date: Timestamp? = null,
+    @get:PropertyName("category") @set:PropertyName("category") var category: String = "",
+    @get:PropertyName("isRecurring") @set:PropertyName("isRecurring") var isRecurring: Boolean = false,
+    @get:PropertyName("recurrence") @set:PropertyName("recurrence") var recurrence: String = "",
+
+
+    )
+
+
+
