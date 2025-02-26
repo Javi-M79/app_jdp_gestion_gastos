@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 
 
-class Expense(
+data class Expense(
 
     @get:PropertyName("userId") @set:PropertyName("userId") var userId: String = "",
     @get:PropertyName("name") @set:PropertyName("name") var name: String = "",
