@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "912244088946",
+    "project_id": "app-jdp-gestion-gastos",
+    "storage_bucket": "app-jdp-gestion-gastos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912244088946:android:f1d74e34d4708ca1dd22eb",
+        "android_client_info": {
+          "package_name": "com.example.app_jdp_gestion_gastos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVl-C3JAGork17kxYjS0IXvAEsRD25CYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
