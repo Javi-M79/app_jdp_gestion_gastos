@@ -176,7 +176,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(applicationContext, HomeActivity::class.java)
             intent.putExtra("usuario", email)
             startActivity(intent)
-            
         }
     }
 
