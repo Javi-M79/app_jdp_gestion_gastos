@@ -1,6 +1,6 @@
 [versions]
-agp = "8.8.1"
-firebaseBom = "33.8.0"
+agp = "8.8.2"
+firebaseBom = "33.10.0"
 gson = "2.10.1"
 kotlin = "2.1.0"
 coreKtx = "1.15.0"
@@ -9,16 +9,17 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
-constraintlayout = "2.2.0"
+constraintlayout = "2.2.1"
 materialCalendarview = "2.0.0"
 mpandroidchart = "v3.1.0"
 mpandroidchartVersion = "3.1.0"
-navigationFragmentKtx = "2.8.5"
-navigationUiKtx = "2.8.5"
+navigationFragmentKtx = "2.8.8"
+navigationUiKtx = "2.8.8"
 firebaseAuthKtx = "23.2.0"
-activity = "1.10.0"
+activity = "1.10.1"
 firebaseFirestoreKtx = "25.1.2"
 firebaseDatabase = "21.0.0"
+firebaseAuth = "23.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +38,7 @@ firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx",
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
