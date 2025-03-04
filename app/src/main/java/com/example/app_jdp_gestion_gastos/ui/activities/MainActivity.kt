@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
 
         // 🔥 Ahora podemos inicializar Firestore
+        auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -70,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvOlvidarPassword = findViewById<TextView>(R.id.tvOlvidarContraseña)
         val fondoImagen = findViewById<ImageView>(R.id.ivFondo)
+        val tvCrearCuenta = findViewById<TextView>(R.id.tvCrearCuenta)
 
         // TODO: LOGICA
         // Eventos de boton login
@@ -85,6 +87,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
         // Evento de botón para recuperar contraseña
         tvOlvidarPassword.setOnClickListener {
             val email = etMail.text.toString().trim()
@@ -97,6 +100,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 resetPassword(email)
             }
+        }
+
+        tvCrearCuenta.setOnClickListener {
+            val intent = Intent(this, RegistroActivity::class.java)
+            startActivity(intent)
         }
 
         // Evento de zoom en el fondo Mail
@@ -159,24 +167,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun loginUser(email: String, password: String) {
         // TODO: FIREBASE
-        /*auth.signInWithEmailAndPassword(email,password)
+        auth.signInWithEmailAndPassword(email,password)
             .addOnCompleteListener(this) {task ->
                 if(task.isSuccessful) {
                     Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
+                    val intent = Intent(applicationContext, HomeActivity::class.java)
+                    intent.putExtra("usuario", email)
+                    startActivity(intent)
+                    // finish()
                 } else {
                     Toast.makeText(this, "Error en el inicio de sesión", Toast.LENGTH_SHORT).show()
                 }
-            }*/
+            }
 
         // TODO: NORMAL
-        if (email == "admin" && password == "admin") {
+        /*if (email == "admin" && password == "admin") {
             Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
             val intent = Intent(applicationContext, HomeActivity::class.java)
             intent.putExtra("usuario", email)
             startActivity(intent)
-        }
+        }*/
     }
 
     private fun resetPassword(email: String) {
