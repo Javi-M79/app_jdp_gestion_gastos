@@ -1,5 +1,4 @@
 package com.example.app_jdp_gestion_gastos.data.model
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 
 
@@ -11,8 +10,7 @@ data class User(
     @get:PropertyName("mail") @set:PropertyName("mail") var mail: String = "",
     @get:PropertyName("profile_picture") @set:PropertyName("profile_picture") var profilePicture: String = "",
     @get:PropertyName("groups") @set:PropertyName("groups") var groups: List<String> = emptyList(),
-    @get:PropertyName("createdAt") @set:PropertyName("createdAt") var createdAt: Timestamp? = null,
+    @get:PropertyName("createdAt") @set:PropertyName("createdAt") var createdAt: Long? = null,
     @get:PropertyName("balance") @set:PropertyName("balance") var balance: Double = 0.0,
-
 
     )
