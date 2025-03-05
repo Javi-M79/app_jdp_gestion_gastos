@@ -20,8 +20,11 @@ class UserRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Registrar usuario en Firebase Authentication y Firestore.
+
+
+    //REGISTRO USUARIO
     //suspend: Funcion suspendida para la ejecucion de operaciones asincronas o en segundo plano.
+
     suspend fun registerUser(email: String, password: String, name: String? = null): String? {
         return try {
             //Desde el reposotorio conectamos con el auth de firebase.
@@ -48,6 +51,21 @@ class UserRepository {
 
         }
     }
+
+
+    //LOGIN USUARIO
+    suspend fun loginUser(email: String, password: String): String? {
+        return try {
+            val authResult = auth.signInWithEmailAndPassword(email, password).await()
+            authResult.user?.uid ?: throw Exception("Usuario no encontrado.")
+        } catch (e: Exception) {
+            throw Exception("Error al iniciar sesión: ${e.message}")
+        }
+
+    }
+
+
+
 
     //Obtener datos de usuario autenticado
 
