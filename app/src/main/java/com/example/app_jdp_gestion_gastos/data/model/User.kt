@@ -13,5 +13,4 @@ data class User(
     @get:PropertyName("createdAt") @set:PropertyName("createdAt") var createdAt: Long? = null,
     @get:PropertyName("balance") @set:PropertyName("balance") var balance: Double = 0.0,
 
-
     )
