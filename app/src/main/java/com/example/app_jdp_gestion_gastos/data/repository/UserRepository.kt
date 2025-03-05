@@ -22,14 +22,18 @@ class UserRepository {
 
     // Registrar usuario en Firebase Authentication y Firestore.
     //suspend: Funcion suspendida para la ejecucion de operaciones asincronas o en segundo plano.
-    suspend fun registerUser(email: String, password: String, name: String): String? {
+    suspend fun registerUser(email: String, password: String, name: String? = null): String? {
         return try {
+            //Desde el reposotorio conectamos con el auth de firebase.
+            //Crear usuario en Firebase Authentication.
+
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: return null
 
             // Crear usuario en Firestore usando su UID como ID del documento
             val newUser = User(
-                name = name,
+                name = name
+                    ?: "", //No pedimos este dato en el registro, lo dejamos en blanco. TODO Tomar decision de implementarlo
                 mail = email,
                 profilePicture = "",
                 balance = 0.0,
@@ -40,8 +44,8 @@ class UserRepository {
             db.collection("users").document(userId).set(newUser).await()
             userId
         } catch (e: Exception) {
-            println("Error al registrar usuario: ${e.message}")
-            null
+            throw Exception("Error al registrar usuario: ${e.message}")
+
         }
     }
 
@@ -52,13 +56,15 @@ class UserRepository {
         return try {
             val documentSnapshot = db.collection("users").document(userId).get().await()
             if (!documentSnapshot.exists()) {
-                println("EL usuario con ID ${userId} no existe.")
-                return null
+                //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
+                throw Exception("EL usuario con ID ${userId} no existe.")
+
             }
             documentSnapshot.toObject(User::class.java)
         } catch (e: Exception) {
-            println("Error al obtener datos de usuario: ${e.message}")
-            null
+            //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
+            throw Exception("Error al obtener datos de usuario: ${e.message}")
+
         }
 
     }
