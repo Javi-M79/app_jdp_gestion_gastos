@@ -9,8 +9,26 @@ import kotlinx.coroutines.launch
 
 class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    //Conectamos el viewModel con el repositorio
 
+    //LOGIN
+    fun loginUser(mail: String, password: String, onResult: (String?, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                //Llamamos al método loginUser del repositorio
+                val userId = userRepository.loginUser(mail, password)
+                onResult(
+                    userId,
+                    null
+                ) // Si el inicio de sesión es exitoso, enviamos el ID del usuario y segundo parámetro null.
+
+            } catch (e: Exception) {
+                onResult(null, e.message)// Si el inicio de sesión falla, enviamos un mensaje de error.
+            }
+        }
+    }
+
+
+    // REGISTRO
     fun registerUser(
         mail: String,
         password: String,
@@ -20,11 +38,12 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         //Creamos una corrutina para ejecutar la acción en segundo plano. (ViewModelScope)
         viewModelScope.launch {
             try {
+                //Llamamos al método registerUser del repositorio
                 val userId = userRepository.registerUser(
                     mail,
                     password,
                     name
-                )//Llamamos al método registerUser del repositorio
+                )
                 onResult(
                     userId,
                     null
@@ -36,7 +55,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-
+    // DATOS DE USUARIO LOGEADO
     fun getCurrentUser(onResult: (User?, String?) -> Unit) {
         //Creamos una corrutina para ejecutar la acción en segundo plano. (ViewModelScope)
         viewModelScope.launch {
@@ -54,7 +73,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    //Cerrar sesion
+    //LOGOUT
     fun logout(onResult: () -> Unit) {
         userRepository.logout()
     }
