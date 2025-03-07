@@ -32,6 +32,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+
+
+
+        <!-- Campo de nombre -->
+        <EditText
+            android:id="@+id/etNombreRegistro"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Introduce tu nombre"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:background="@drawable/edittext_background"
+            app:layout_constraintTop_toBottomOf="@id/tvRegistroTitulo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp"/>
+
         <!-- Campo de Email -->
         <EditText
             android:id="@+id/etMailRegistro"
@@ -41,7 +58,7 @@
             android:inputType="textEmailAddress"
             android:padding="12dp"
             android:background="@drawable/edittext_background"
-            app:layout_constraintTop_toBottomOf="@id/tvRegistroTitulo"
+            app:layout_constraintTop_toBottomOf="@id/etNombreRegistro"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="24dp"/>
