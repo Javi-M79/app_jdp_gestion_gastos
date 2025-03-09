@@ -17,18 +17,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-/**
- * A simple [Fragment] subclass.
- * Use the [RegistroFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-
 class RegistroFragment : Fragment() {
 
     private var _binding: FragmentRegistroBinding? = null
     private val binding get() = _binding!!
 
-
+    // by Lazy inicializa el repositorio solo cuando se necesita.
     private val userRepository by lazy {
         UserRepository(
             FirebaseAuth.getInstance(),
@@ -36,8 +30,9 @@ class RegistroFragment : Fragment() {
         )
     }
 
-    // Variable para acceder al ViewModel.
+    // Variable para acceder al ViewModel. by viewModels
     private val userViewModel: UserViewModel by viewModels {
+        //Le pasamos el repositorio al ViewModel a traves del factory.
         AppViewModelFactory(userRepository)
     }
 
@@ -57,9 +52,7 @@ class RegistroFragment : Fragment() {
         val tvVolverLogin = binding.tvVolverLogin
 
         btnRegistrar.setOnClickListener {
-
-            //Creamos las variables necesarias
-
+            //Variables que se pasaran por parametro a la funcion de registro.
             val mail = binding.etMailRegistro.text.toString().trim()
             val password = binding.etPasswordRegistro.text.toString().trim()
             val confirmPassword = binding.etPasswordConfirm.text.toString().trim()
@@ -81,11 +74,7 @@ class RegistroFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
-
             }
-
-
         }
 
         tvVolverLogin.setOnClickListener {
@@ -99,6 +88,51 @@ class RegistroFragment : Fragment() {
     }
 }
 
+
+
+//NOTAS DAVID:
+/*
+//La conexion a la base de datos ahora se realiza con el ViewModel y el repository. Desvinculamos la UI de Firebase.
+// Hay que pensar si tambien pedimos nombre de usuario en el registro.
+auth = FirebaseAuth.getInstance()
+
+val etMail = findViewById<EditText>(R.id.etMailRegistro)
+val etPassword = findViewById<EditText>(R.id.etPasswordRegistro)
+val etPasswordConfirm = findViewById<EditText>(R.id.etPasswordConfirm)
+val btnRegistrar = findViewById<Button>(R.id.btnRegistrar)
+val tvVolverLogin = findViewById<TextView>(R.id.tvVolverLogin)
+
+ */
+
+
+//Codigo de David para el registro de usuarios. MODIFICADO MAS ARRIBA USANDO VIEWMODEL
+/*btnRegistrar.setOnClickListener {
+    val email = etMail.text.toString().trim()
+    val password = etPassword.text.toString().trim()
+    val confirmPassword = etPasswordConfirm.text.toString().trim()
+
+    if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT)
+            .show()
+    } else if (password != confirmPassword) {
+        Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+    } else {
+        registrarUsuario(email, password)
+    }
+}*/
+
+/*private fun registrarUsuario(email: String, password: String) {
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(this, "Error en el registro", Toast.LENGTH_SHORT).show()
+            }
+        }
+}*/
 
 
 
