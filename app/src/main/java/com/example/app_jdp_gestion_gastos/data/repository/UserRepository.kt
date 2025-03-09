@@ -27,13 +27,8 @@ class UserRepository(
             //Desde el reposotorio conectamos con el auth de firebase.
 
             //Crear usuario en Firebase Authentication.
-            Log.e(
-                "UserRepository",
-                "🔹 Intentando registrar usuario en Firebase Authentication con email: $email"
-            )
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: return null
-            Log.e("UserRepository", "✅ Usuario registrado con UID en Firebase: $userId")
 
             // Crear usuario en Firestore usando su UID como ID del documento
             val newUser = User(
@@ -80,7 +75,6 @@ class UserRepository(
         } catch (e: Exception) {
             //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
             throw Exception("Error al obtener datos de usuario: ${e.message}")
-
         }
 
     }

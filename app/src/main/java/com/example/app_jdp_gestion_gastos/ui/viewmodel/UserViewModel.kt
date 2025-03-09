@@ -42,15 +42,12 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     // REGISTRO
     fun registerUser(
-
         mail: String,
         password: String,
         confirmPassword: String,
         name: String,
-
         onResult: (String?, String?) -> Unit // Callback para notificar el resultado del registro. Recibe el ID del usuario si es exitoso, o un mensaje de error si falla.
     ) {
-
         //Validacion de datos
         if (name.isEmpty() || mail.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             onResult(null, "Por favor, completa todos los campos")
