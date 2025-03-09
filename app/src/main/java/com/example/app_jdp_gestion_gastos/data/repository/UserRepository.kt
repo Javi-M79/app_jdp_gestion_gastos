@@ -14,11 +14,10 @@ import kotlinx.coroutines.tasks.await
     */
 
 
-class UserRepository( private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-        private val db: FirebaseFirestore = FirebaseFirestore.getInstance()) {
-
-
-
+class UserRepository(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+) {
 
     //REGISTRO USUARIO
     //suspend: Funcion suspendida para la ejecucion de operaciones asincronas o en segundo plano.
@@ -28,10 +27,8 @@ class UserRepository( private val auth: FirebaseAuth = FirebaseAuth.getInstance(
             //Desde el reposotorio conectamos con el auth de firebase.
 
             //Crear usuario en Firebase Authentication.
-            Log.e("UserRepository", "🔹 Intentando registrar usuario en Firebase Authentication con email: $email")
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: return null
-            Log.e("UserRepository", "✅ Usuario registrado con UID en Firebase: $userId")
 
             // Crear usuario en Firestore usando su UID como ID del documento
             val newUser = User(
@@ -50,7 +47,6 @@ class UserRepository( private val auth: FirebaseAuth = FirebaseAuth.getInstance(
 
         }
     }
-
 
     //LOGIN USUARIO
     suspend fun loginUser(email: String, password: String): String? {
@@ -79,7 +75,6 @@ class UserRepository( private val auth: FirebaseAuth = FirebaseAuth.getInstance(
         } catch (e: Exception) {
             //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
             throw Exception("Error al obtener datos de usuario: ${e.message}")
-
         }
 
     }

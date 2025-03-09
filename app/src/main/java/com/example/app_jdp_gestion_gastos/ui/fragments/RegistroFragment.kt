@@ -1,24 +1,28 @@
-package com.example.app_jdp_gestion_gastos.ui.activities
+package com.example.app_jdp_gestion_gastos.ui.fragments
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.repository.UserRepository
-import com.example.app_jdp_gestion_gastos.databinding.ActivityRegistroBinding
+import com.example.app_jdp_gestion_gastos.databinding.FragmentRegistroBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.AppViewModelFactory
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class RegistroActivity : AppCompatActivity() {
 
+class RegistroFragment : Fragment() {
 
-    //David he implementado binding en esta activity
-    private lateinit var binding: ActivityRegistroBinding
+    private var _binding: FragmentRegistroBinding? = null
+    private val binding get() = _binding!!
 
+    // by Lazy inicializa el repositorio solo cuando se necesita.
     private val userRepository by lazy {
         UserRepository(
             FirebaseAuth.getInstance(),
@@ -26,63 +30,64 @@ class RegistroActivity : AppCompatActivity() {
         )
     }
 
-    // Variable para acceder al ViewModel.
+    // Variable para acceder al ViewModel. by viewModels
     private val userViewModel: UserViewModel by viewModels {
+        //Le pasamos el repositorio al ViewModel a traves del factory.
         AppViewModelFactory(userRepository)
     }
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //Implemetacion de Binding.
-        binding = ActivityRegistroBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentRegistroBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        Log.e("Iniciada RegistroActivity", "🔹 RegistroActivity iniciada")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        //Incializacion de variables que interactuaran con el layout.
         val btnRegistrar = binding.tvRegistro
         val tvVolverLogin = binding.tvVolverLogin
 
-        /*    btnRegistrar.setOnClickListener {
-                Snackbar.make(it, "Registro exitoso", Snackbar.LENGTH_SHORT).show()
-            }*/
-
-
-        //REGISTRO DE USUARIOS
-
         btnRegistrar.setOnClickListener {
             //Variables que se pasaran por parametro a la funcion de registro.
-            val name = binding.etNombreRegistro.text.toString().trim()
-            val email = binding.etMailRegistro.text.toString().trim()
+            val mail = binding.etMailRegistro.text.toString().trim()
             val password = binding.etPasswordRegistro.text.toString().trim()
             val confirmPassword = binding.etPasswordConfirm.text.toString().trim()
+            val name = binding.etNombreRegistro.text.toString().trim()
 
-            Log.e("RegistroActivity", "🔹 Botón de registrar presionado con email: $email")
-            userViewModel.registerUser(email, password, confirmPassword, name) { userId, error ->
+            //Una vez creadas las variables, las pasamos al viewmodel.
+
+            userViewModel.registerUser(mail, password, confirmPassword, name) { userId, error ->
                 if (userId != null) {
-                    Log.e("RegistroActivity", "✅ Registro exitoso con UID: $userId")
-                    Toast.makeText(this, "Usuario registrado con exito", Toast.LENGTH_SHORT)
-                        .show()
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
+                    Toast.makeText(
+                        requireContext(),
+                        "Usuario registrado con exito",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
-                    Log.e("RegistroActivity", "❌ Error en RegistroActivity: $error")
-                    Toast.makeText(this, error ?: "Error desconocido", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        error ?: "Error desconocido",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-
         }
 
-
-        // Boton para volver a la pantalla de login.
         tvVolverLogin.setOnClickListener {
-            finish() // Cierra la actividad y vuelve al login
+            findNavController().navigate(R.id.action_registroFragment_to_loginFragment)
         }
-
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
+
 
 
 //NOTAS DAVID:
@@ -128,3 +133,6 @@ val tvVolverLogin = findViewById<TextView>(R.id.tvVolverLogin)
             }
         }
 }*/
+
+
+
