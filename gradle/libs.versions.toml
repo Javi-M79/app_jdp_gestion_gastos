@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.2"
+agp = "8.9.0"
 firebaseBom = "33.10.0"
 gson = "2.10.1"
 kotlin = "2.1.0"
@@ -20,8 +20,18 @@ activity = "1.10.1"
 firebaseFirestoreKtx = "25.1.2"
 firebaseDatabase = "21.0.0"
 firebaseAuth = "23.2.0"
+compose = "1.5.0"
+activityCompose = "1.7.2"
+material3 = "1.2.0"
+uiTooling = "1.5.0"
+
 
 [libraries]
+androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-compose-activity = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
