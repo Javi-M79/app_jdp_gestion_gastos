@@ -67,6 +67,7 @@ class RegistroFragment : Fragment() {
                         "Usuario registrado con exito",
                         Toast.LENGTH_SHORT
                     ).show()
+                    findNavController().navigate(R.id.action_registroFragment_to_loginFragment)
                 } else {
                     Toast.makeText(
                         requireContext(),
