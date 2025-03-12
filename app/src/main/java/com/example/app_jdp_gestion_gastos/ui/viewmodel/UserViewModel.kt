@@ -114,9 +114,39 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
 
 
+//TODO INCLUIR ESTE METODO EN EL VIEWMODEL
+// Evento de botón para recuperar contraseña
+/* tvOlvidarPassword.setOnClickListener {
+     val email = etMail.text.toString().trim()
+     if (email.isEmpty()) {
+         Toast.makeText(
+             this,
+             "Ingresa tu correo para recuperar la contraseña",
+             Toast.LENGTH_SHORT
+         ).show()
+     } else {
+         resetPassword(email)
+     }
+ }*/
 
 
 
+
+/* METODO RESET PASSWORD
+ private fun resetPassword(email: String) {
+     auth.sendPasswordResetEmail(email)
+         .addOnCompleteListener { task ->
+             if (task.isSuccessful) {
+                 Toast.makeText(
+                     this,
+                     "Se ha enviado un correo de recuperación",
+                     Toast.LENGTH_SHORT
+                 ).show()
+             } else {
+                 Toast.makeText(this, "Error al enviar el correo", Toast.LENGTH_SHORT).show()
+             }
+         }
+ }*/
 
 
 
