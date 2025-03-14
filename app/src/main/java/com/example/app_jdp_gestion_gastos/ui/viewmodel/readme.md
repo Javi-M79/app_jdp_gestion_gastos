@@ -6,7 +6,7 @@ De esta manera se separamos responsabilidades y la UI no maneja directamente la 
 
 ## LISTA DE VIEMODELS
 
--- UserViewModel
--- ExpenseViewModel
--- IncomeViewModel
--- GroupViewModel
+- UserViewModel
+- ExpenseViewModel
+- IncomeViewModel
+- GroupViewModel
