@@ -14,3 +14,4 @@ data class User(
     @get:PropertyName("balance") @set:PropertyName("balance") var balance: Double = 0.0,
 
     )
+
