@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController = navHostFragment.navController
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
 
         // Cofiguracion de la navegacion
         binding.btnNavegacion.setupWithNavController(navController)
+        // Quita el tinte de los iconos y los muestra por defecto
+        binding.btnNavegacion.itemIconTintList = null
 
         //Ocultar botones de navegacion en pantallas Login y Register
         navController.addOnDestinationChangedListener { _, destination, _ ->

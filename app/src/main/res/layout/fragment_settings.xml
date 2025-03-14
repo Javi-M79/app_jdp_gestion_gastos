@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:text="Moneda:"
                 android:textSize="15sp"
-                android:textColor="@color/white"
+                android:textColor="?attr/colorOnBackground"
                 android:layout_marginEnd="12dp" />
 
             <Spinner
@@ -67,7 +67,8 @@
                 android:layout_weight="1"
                 android:text="Modo Oscuro"
                 android:textSize="15sp"
-                android:textColor="@color/white" />
+                android:textColor="?attr/colorOnBackground"
+                />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchDarkMode"
@@ -93,7 +94,7 @@
                 android:layout_marginEnd="10dp"
                 android:text="Presupuesto Mensual:"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="?attr/colorOnBackground"
                 android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/etPresupuesto"
@@ -132,7 +133,8 @@
             android:layout_weight="1"
             android:text="Notificaciones"
             android:textSize="15sp"
-            android:textColor="@color/white" />
+            android:textColor="?attr/colorOnBackground"
+            />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchNotificaciones"
@@ -201,7 +203,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Acerca de la aplicación"
-        android:textColor="@color/primary_text"
+        android:textColor="?attr/colorOnBackground"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tvAppInfo"

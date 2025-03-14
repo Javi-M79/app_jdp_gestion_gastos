@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.view.animation.ScaleAnimation
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -51,19 +52,22 @@ class LoginFragment : Fragment() {
 
         // TODO: VARIABLES
         // Animación del titulo
-        val titulo = binding.tvTitulo
         val fadeIn = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
-        titulo.startAnimation(fadeIn)
+        binding.tvTitulo.startAnimation(fadeIn)
 
+        // Aplicar la animación a otros elementos
+        binding.etMail.startAnimation(fadeIn)
+        binding.etPassword.startAnimation(fadeIn)
+        binding.btnLogin.startAnimation(fadeIn)
+        binding.ivFondo.startAnimation(fadeIn)
+        binding.tvCrearCuenta.startAnimation(fadeIn)
 
-        val login = binding.btnLogin
-        val resetPassword = binding.resetpassword
-        val fondo = binding.ivFondo
-        val crearCuenta = binding.tvCrearCuenta
+        // Agregar animaciones de foco a los EditText
+        applyFocusAnimations()
 
 
         //LOGIN EN FIREBASE
-        login.setOnClickListener {
+        binding.btnLogin.setOnClickListener {
             //Variables  necesarias para el login.
             val mail = binding.etMail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -76,14 +80,37 @@ class LoginFragment : Fragment() {
                         .show()
                 }
             }
-
         }
-
-        crearCuenta.setOnClickListener {
+        // Navegación a la pantalla de registro
+        binding.tvCrearCuenta.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registroFragment)
         }
-
     }
+
+    private fun applyFocusAnimations() {
+        val fondo = binding.ivFondo
+
+        binding.etMail.setOnFocusChangeListener { _, hasFocus ->
+            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+        }
+
+        binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
+            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+        }
+    }
+
+    private fun createScaleAnimation(from: Float, to: Float): ScaleAnimation {
+        return ScaleAnimation(
+            from, to,
+            from, to,
+            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
+        ).apply {
+            duration = 300
+            fillAfter = true
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
