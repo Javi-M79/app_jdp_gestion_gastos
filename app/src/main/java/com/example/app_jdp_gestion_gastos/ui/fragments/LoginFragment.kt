@@ -33,7 +33,7 @@ class LoginFragment : Fragment() {
 
     }
 
-    //Inicio del UserViewModel que recibe el reposotory a traves de ViewmOdel factori
+    //Inicio del UserViewModel que recibe el reposotory a traves de ViewModdel factory
     private val userViewModel: UserViewModel by viewModels {
         AppViewModelFactory(userRepository)
     }
