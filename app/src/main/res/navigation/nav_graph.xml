@@ -4,15 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/loginFragment">
 
-
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login">
 
-        <!--Navegacion fragment login a home usuario-->
-        <!--Navegacion fragment login a formulario de registro-->
         <action
             android:id="@+id/action_loginFragment_to_registroFragment"
             app:destination="@id/registroFragment" />
@@ -20,7 +17,6 @@
             android:id="@+id/action_loginFragment_to_statsFragment"
             app:destination="@id/statsFragment" />
     </fragment>
-
 
     <fragment
         android:id="@+id/homeFragment"
@@ -60,28 +56,47 @@
             android:id="@+id/action_settingsFragment_to_statsFragment"
             app:destination="@id/statsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/transactionsFragment"
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.TransactionsFragment"
         android:label="fragment_transactions"
         tools:layout="@layout/fragment_transactions" />
+
     <fragment
         android:id="@+id/groupsFragment"
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GroupsFragment"
         android:label="fragment_groups"
-        tools:layout="@layout/fragment_groups" />
+        tools:layout="@layout/fragment_groups">
+        <action
+            android:id="@+id/action_groupsFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment">
+            <argument
+                android:name="groupId"
+                app:argType="string" />
+        </action>
+    </fragment>
 
-    <!--Fragment de registro-->
     <fragment
         android:id="@+id/registroFragment"
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.RegistroFragment"
         android:label="RegistroFragment">
-        <!--Navegacion fragment registro a login-->
         <action
-
             android:id="@+id/action_registroFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/groupDetailsFragment"
+        android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GroupDetailsFragment"
+        android:label="Detalles del Grupo">
+        <argument
+            android:name="groupId"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_groupDetailsFragment_to_groupsFragment"
+            app:destination="@id/groupsFragment" />
+    </fragment>
 
 </navigation>
