@@ -58,8 +58,9 @@ class GroupDetailsFragment : Fragment() {
                 binding.tvGroupMembers.text = "Miembros: ${it.members.size}"
                 membersAdapter.submitList(it.members)
 
-                binding.btnDeleteGroup.visibility = if (viewModel.getCurrentUserId() == it.createdBy)
-                    View.VISIBLE else View.GONE
+                binding.btnDeleteGroup.visibility =
+                    if (viewModel.getCurrentUserId() == it.createdBy)
+                        View.VISIBLE else View.GONE
             }
         }
     }

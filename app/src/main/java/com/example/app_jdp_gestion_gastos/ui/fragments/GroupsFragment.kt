@@ -14,6 +14,7 @@ import com.example.app_jdp_gestion_gastos.ui.adapters.GroupAdapter
 import com.example.app_jdp_gestion_gastos.ui.dialog.CreateGroupDialog
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.GroupViewModel
 import androidx.navigation.fragment.findNavController
+import com.example.app_jdp_gestion_gastos.R
 
 class GroupsFragment : Fragment() {
     private var _binding: FragmentGroupsBinding? = null
@@ -50,8 +51,11 @@ class GroupsFragment : Fragment() {
 
     private fun navigateToGroupDetails(groupId: String) {
         if (groupId.isNotBlank()) {
-            val action = GroupsFragmentDirections.actionGroupsFragmentToGroupDetailsFragment(groupId)
+
+            val action =
+                GroupsFragmentDirections.actionGroupsFragmentToGroupDetailsFragment(groupId)
             findNavController().navigate(action)
+
         } else {
             Log.e("GroupsFragment", "Error: group.id es nulo o vacío, no se puede navegar")
         }
