@@ -1,6 +1,5 @@
 package com.example.app_jdp_gestion_gastos.data.repository
 
-import android.util.Log
 import com.example.app_jdp_gestion_gastos.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -71,7 +70,9 @@ class UserRepository(
                 throw Exception("EL usuario con ID ${userId} no existe.")
 
             }
+
             documentSnapshot.toObject(User::class.java)
+
         } catch (e: Exception) {
             //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
             throw Exception("Error al obtener datos de usuario: ${e.message}")

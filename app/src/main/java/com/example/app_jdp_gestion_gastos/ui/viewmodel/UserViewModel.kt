@@ -13,8 +13,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     //LOGIN
     fun loginUser(mail: String, password: String, onResult: (String?, String?) -> Unit) {
 
-
-        //Comprobacion de que estan rellenos todos los camos
+        //Comprobacion de que estan rellenos todos los campos
 
         if (mail.isEmpty() || password.isEmpty()) {
             onResult(null, "Por favor, completa todos los campos")
@@ -51,39 +50,30 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         //Validacion de datos
         if (name.isEmpty() || mail.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             onResult(null, "Por favor, completa todos los campos")
-            Log.e("UserViewModel", "❌ Error: Campos vacíos")
             return
         }
 
         //Validacion de que las contraseñas coiciden
         if (password != confirmPassword) {
             onResult(null, "Las contraseñas no coinciden")
-            Log.e("UserViewModel", "❌ Error: Contraseñas no coinciden")
             return
         }
-
-
         //Corrutina para ejecutar la acción en segundo plano. (ViewModelScope)
         viewModelScope.launch {
             try {
                 //Llamamos al método registerUser del repositorio
-                Log.e(
-                    "UserViewModel",
-                    "🔹 Llamando a UserRepository.registerUser() con email: $mail"
-                )
                 val userId = userRepository.registerUser(
                     mail,
                     password,
                     name
                 )
-                Log.e("UserViewModel", "✅ Usuario registrado con UID en ViewModel: $userId")
                 onResult(
                     userId,
                     null
                 ) // Si el registro es exitoso, enviamos el ID del usuario y segundo parámetro null.
 
             } catch (e: Exception) {
-                Log.e("UserViewModel", "❌ Error en UserViewModel: ${e.message}")
+
                 onResult(null, e.message) // Si el registro falla, enviamos un mensaje de error
             }
         }
@@ -106,12 +96,12 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+
     //LOGOUT
     fun logout(onResult: () -> Unit) {
         userRepository.logout()
     }
 }
-
 
 
 //TODO INCLUIR ESTE METODO EN EL VIEWMODEL
@@ -128,8 +118,6 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
          resetPassword(email)
      }
  }*/
-
-
 
 
 /* METODO RESET PASSWORD
