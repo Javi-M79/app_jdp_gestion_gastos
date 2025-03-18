@@ -91,11 +91,21 @@ class LoginFragment : Fragment() {
         val fondo = binding.ivFondo
 
         binding.etMail.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+            fondo.startAnimation(
+                createScaleAnimation(
+                    if (hasFocus) 1.0f else 1.2f,
+                    if (hasFocus) 1.2f else 1.0f
+                )
+            )
         }
 
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+            fondo.startAnimation(
+                createScaleAnimation(
+                    if (hasFocus) 1.0f else 1.2f,
+                    if (hasFocus) 1.2f else 1.0f
+                )
+            )
         }
     }
 
