@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
-    private lateinit var userName: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
