@@ -67,6 +67,8 @@ class UserRepository(
         return try {
             val documentSnapshot = db.collection("users").document(userId).get().await()
             if (!documentSnapshot.exists()) {
+                // TODO Recuperar nombre de usuario desde Firebase Authentication.
+                var userName = documentSnapshot.getString("name")!!.toString()
                 //Lanzamos una excepcion si ocurre un error al obtener los datos del usuario y la mandamos al Viewmodel.
                 throw Exception("EL usuario con ID ${userId} no existe.")
 
