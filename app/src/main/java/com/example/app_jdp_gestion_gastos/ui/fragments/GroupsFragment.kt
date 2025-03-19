@@ -1,6 +1,5 @@
 package com.example.app_jdp_gestion_gastos.ui.fragments
 
-import android.util.Log
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.app_jdp_gestion_gastos.databinding.FragmentGroupsBinding
 import com.example.app_jdp_gestion_gastos.ui.adapters.GroupAdapter
 import com.example.app_jdp_gestion_gastos.ui.dialog.CreateGroupDialog
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.GroupViewModel
-import androidx.navigation.fragment.findNavController
-import com.example.app_jdp_gestion_gastos.R
+import com.example.app_jdp_gestion_gastos.ui.viewmodels.GroupsViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GroupsFragment : Fragment() {
     private var _binding: FragmentGroupsBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: GroupViewModel by viewModels()
+    private val viewModel: GroupsViewModel by viewModels()
     private lateinit var groupAdapter: GroupAdapter
 
     override fun onCreateView(
@@ -34,56 +32,35 @@ class GroupsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupObservers()
-        setupClickListeners()
+
+        binding.fabAddGroup.setOnClickListener {
+            val dialog = CreateGroupDialog()
+            dialog.show(childFragmentManager, "CreateGroupDialog")
+        }
+
+        binding.btnBorrarGrupo.setOnClickListener {
+            viewModel.deleteSelectedGroup()
+        }
     }
 
     private fun setupRecyclerView() {
         groupAdapter = GroupAdapter { group ->
             viewModel.selectGroup(group)
-            navigateToGroupDetails(group.id)
+            Toast.makeText(requireContext(), "Grupo seleccionado: ${group.name}", Toast.LENGTH_SHORT).show()
         }
-
         binding.recyclerViewGroups.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = groupAdapter
         }
     }
 
-    private fun navigateToGroupDetails(groupId: String) {
-        if (groupId.isNotBlank()) {
-
-            val action =
-                GroupsFragmentDirections.actionGroupsFragmentToGroupDetailsFragment(groupId)
-            findNavController().navigate(action)
-
-        } else {
-            Log.e("GroupsFragment", "Error: group.id es nulo o vacío, no se puede navegar")
-        }
-    }
-
     private fun setupObservers() {
-        viewModel.userGroups.observe(viewLifecycleOwner) { groups ->
-            Log.d("GroupsFragment", "Lista de grupos actualizada: $groups")
+        viewModel.groups.observe(viewLifecycleOwner) { groups ->
             groupAdapter.submitList(groups)
         }
 
         viewModel.selectedGroup.observe(viewLifecycleOwner) { selectedGroup ->
-            Log.d("GroupsFragment", "Grupo seleccionado en ViewModel: $selectedGroup")
-            binding.btnBorrarGrupo.apply {
-                visibility = if (selectedGroup != null) View.VISIBLE else View.GONE
-                isEnabled = selectedGroup != null
-            }
-        }
-    }
-
-    private fun setupClickListeners() {
-        binding.fabAddGroup.setOnClickListener {
-            CreateGroupDialog().show(childFragmentManager, "CreateGroupDialog")
-        }
-
-        binding.btnBorrarGrupo.setOnClickListener {
-            viewModel.deleteSelectedGroup()
-            Toast.makeText(requireContext(), "Grupo eliminado", Toast.LENGTH_SHORT).show()
+            binding.btnBorrarGrupo.isEnabled = selectedGroup != null
         }
     }
 

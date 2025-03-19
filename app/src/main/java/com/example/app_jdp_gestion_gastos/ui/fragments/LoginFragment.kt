@@ -74,15 +74,10 @@ class LoginFragment : Fragment() {
             //Metodo en el userViewModel
             userViewModel.loginUser(mail, password) { userId, error ->
                 if (userId != null) {
-
-                    Toast.makeText(requireContext(), "Bienvenido", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), "Bienvenido, $mail", Toast.LENGTH_SHORT)
                         .show()
-                    Toast.makeText(requireContext(), "Bienvenido", Toast.LENGTH_SHORT).show()
-                    // Navegar a la pantalla de estadísticas
-
                     findNavController().navigate(R.id.action_loginFragment_to_statsFragment)
                 } else {
-
                     Toast.makeText(requireContext(), "Usuario no encontrado", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -98,21 +93,11 @@ class LoginFragment : Fragment() {
         val fondo = binding.ivFondo
 
         binding.etMail.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(
-                createScaleAnimation(
-                    if (hasFocus) 1.0f else 1.2f,
-                    if (hasFocus) 1.2f else 1.0f
-                )
-            )
+            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
         }
 
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(
-                createScaleAnimation(
-                    if (hasFocus) 1.0f else 1.2f,
-                    if (hasFocus) 1.2f else 1.0f
-                )
-            )
+            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
         }
     }
 
