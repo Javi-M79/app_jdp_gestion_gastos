@@ -74,7 +74,7 @@ class LoginFragment : Fragment() {
             //Metodo en el userViewModel
             userViewModel.loginUser(mail, password) { userId, error ->
                 if (userId != null) {
-                    Toast.makeText(requireContext(), "Bienvenido", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), "Bienvenido, $mail", Toast.LENGTH_SHORT)
                         .show()
                     findNavController().navigate(R.id.action_loginFragment_to_statsFragment)
                 } else {
