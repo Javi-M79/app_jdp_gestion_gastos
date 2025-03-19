@@ -2,6 +2,7 @@ package com.example.app_jdp_gestion_gastos.data.model
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
+import java.io.Serializable
 
 
 data class Expense(
@@ -16,4 +17,4 @@ data class Expense(
     @get:PropertyName("isRecurring") @set:PropertyName("isRecurring") var isRecurring: Boolean = false,
     @get:PropertyName("recurrence") @set:PropertyName("recurrence") var recurrence: String = "",
 
-    )
+    ): Serializable

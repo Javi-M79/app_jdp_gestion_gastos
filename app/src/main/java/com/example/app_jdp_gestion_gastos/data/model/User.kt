@@ -1,5 +1,7 @@
 package com.example.app_jdp_gestion_gastos.data.model
+
 import com.google.firebase.firestore.PropertyName
+import java.io.Serializable
 
 
 //Modelo de la base de datos para usuario.
@@ -13,5 +15,5 @@ data class User(
     @get:PropertyName("createdAt") @set:PropertyName("createdAt") var createdAt: Long? = null,
     @get:PropertyName("balance") @set:PropertyName("balance") var balance: Double = 0.0,
 
-    )
+    ) : Serializable
 
