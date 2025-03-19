@@ -9,12 +9,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.databinding.ActivityMainBinding
 import com.example.app_jdp_gestion_gastos.ui.dialog.LogoutDialogo
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var userName: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,7 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
                 }
             }
         }
+
 
         // TODO: Activar modo inmersivo (Desactivar barra de estado)
 
