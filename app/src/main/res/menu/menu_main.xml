@@ -12,8 +12,8 @@
 
     <item
         android:id="@+id/homeFragment"
-        android:icon="@drawable/inicio"
-        android:title="Home"/>
+        android:icon="@drawable/calendario"
+        android:title="Calendario"/>
 
     <item
         android:id="@+id/groupsFragment"
