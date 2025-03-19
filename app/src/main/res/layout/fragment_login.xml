@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     tools:context=".ui.fragments.LoginFragment">
 
+    <!-- Imagen de fondo -->
+    <ImageView
+        android:id="@+id/ivFondo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/fondoappclaro"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Contenedor principal -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="0dp">
-
-        <!-- Imagen de fondo -->
-        <ImageView
-            android:id="@+id/ivFondo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/fondoappclaro"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginHorizontal="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Título de la app -->
         <TextView
             android:id="@+id/tvTitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
             android:fontFamily="sans-serif-condensed"
             android:letterSpacing="0.05"
-            android:paddingHorizontal="16dp"
             android:text="JDP Finance"
             android:textColor="@color/black"
             android:textSize="48sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Logo -->
         <ImageView
@@ -45,22 +49,21 @@
             android:layout_height="100dp"
             android:elevation="40dp"
             android:src="@drawable/calculadora"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitulo"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTitulo" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Formulario -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/lyFormulario"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="30dp"
             android:background="@drawable/degradado_app"
             android:paddingHorizontal="15dp"
             android:paddingVertical="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivLogo">
 
             <!-- Campo de email -->
@@ -124,9 +127,9 @@
             android:layout_marginTop="16dp"
             android:text="¿No eres miembro todavía?"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lyFormulario"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lyFormulario" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/tvCrearCuenta"
@@ -137,22 +140,21 @@
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPregunta"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvPregunta" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- LinearLayout para los logos de redes sociales -->
+        <!-- Logos de redes sociales -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCrearCuenta"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvCrearCuenta">
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Logo de Gmail -->
             <ImageView
                 android:id="@+id/ivGmail"
                 android:layout_width="50dp"
@@ -160,7 +162,6 @@
                 android:layout_marginRight="30dp"
                 android:src="@drawable/google" />
 
-            <!-- Logo de Meta (Facebook) -->
             <ImageView
                 android:id="@+id/ivMeta"
                 android:layout_width="50dp"
@@ -168,7 +169,6 @@
                 android:layout_marginRight="30dp"
                 android:src="@drawable/manzana" />
 
-            <!-- Logo de Apple -->
             <ImageView
                 android:id="@+id/ivApple"
                 android:layout_width="50dp"
@@ -179,4 +179,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
