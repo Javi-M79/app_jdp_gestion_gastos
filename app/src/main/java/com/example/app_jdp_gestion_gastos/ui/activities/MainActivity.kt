@@ -16,12 +16,14 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var auth: FirebaseAuth  // Agregamos FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()  // Inicializamos FirebaseAuth
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
@@ -46,6 +48,8 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
                 binding.tvSaludoUsuario.visibility = View.VISIBLE
                 binding.btnLogOut.visibility = View.VISIBLE
 
+                // Mostrar correo del usuario
+                mostrarCorreoUsuario()
 
                 // Boton Logout
                 binding.btnLogOut.setOnClickListener {
@@ -57,12 +61,25 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
 
 
         // TODO: Activar modo inmersivo (Desactivar barra de estado)
-
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mostrarCorreoUsuario() // Actualizar el correo al volver a la actividad
+    }
+
+    private fun mostrarCorreoUsuario() {
+        val user = auth.currentUser
+        if (user != null) {
+            binding.tvSaludoUsuario.text = "Hola, ${user.email}"
+        } else {
+            binding.tvSaludoUsuario.text = "Usuario no encontrado"
+        }
     }
 
 
@@ -71,7 +88,8 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
     }
 
     override fun dialogoLogOutSelected() {
-        finish()
+        auth.signOut() // Cerrar sesión en Firebase
+        navController.navigate(R.id.loginFragment) // Navegar al loginFragment
     }
 
 }
