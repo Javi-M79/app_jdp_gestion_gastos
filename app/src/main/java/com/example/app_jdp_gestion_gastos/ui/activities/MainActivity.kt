@@ -7,8 +7,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.app_jdp_gestion_gastos.R
+import com.example.app_jdp_gestion_gastos.data.repository.UserRepository
 import com.example.app_jdp_gestion_gastos.databinding.ActivityMainBinding
 import com.example.app_jdp_gestion_gastos.ui.dialog.LogoutDialogo
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -74,11 +76,15 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
     }
 
     private fun mostrarCorreoUsuario() {
-        val user = auth.currentUser
-        if (user != null) {
-            binding.tvSaludoUsuario.text = "Hola, ${user.email}"
-        } else {
-            binding.tvSaludoUsuario.text = "Usuario no encontrado"
+        val userViewModel = UserViewModel(UserRepository()) // Asegúrate de inyectar correctamente el repositorio
+        userViewModel.getCurrentUserName { nombre ->
+            runOnUiThread {
+                binding.tvSaludoUsuario.text = if (!nombre.isNullOrEmpty()) {
+                    "Hola, $nombre"
+                } else {
+                    "Usuario no encontrado"
+                }
+            }
         }
     }
 

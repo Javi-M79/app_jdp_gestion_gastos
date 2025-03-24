@@ -90,22 +90,16 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     }
 
     // DATOS DE USUARIO LOGEADO
-    fun getCurrentUser(onResult: (User?, String?) -> Unit) {
-        //Creamos una corrutina para ejecutar la acción en segundo plano. (ViewModelScope)
+    fun getCurrentUserName(onResult: (String?) -> Unit) {
         viewModelScope.launch {
             try {
-                //Llamamos al método getCurrentUser del repositorio
                 val currentUser = userRepository.getCurrentUser()
-                onResult(
-                    currentUser,
-                    null
-                )
+                onResult(currentUser?.name) // Retorna el nombre
             } catch (e: Exception) {
-                onResult(null, e.message)
+                onResult(null) // En caso de error, devuelve null
             }
         }
     }
-
     //LOGOUT
     fun logout(onResult: () -> Unit) {
         userRepository.logout()
