@@ -12,13 +12,17 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.data.model.Income
+import com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository
 import com.example.app_jdp_gestion_gastos.data.repository.IncomeRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentTransactionsBinding
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModel
+import com.example.app_jdp_gestion_gastos.adapter.ExpenseAdapter
 import com.example.app_jdp_gestion_gastos.adapter.IncomeAdapter
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -27,11 +31,20 @@ class TransactionsFragment : Fragment() {
     private var _binding: FragmentTransactionsBinding? = null
     private val binding get() = _binding!!
     private lateinit var incomeAdapter: IncomeAdapter
+    private lateinit var expenseAdapter: ExpenseAdapter
 
     private val incomeViewModel: IncomeViewModel by viewModels {
         object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 return IncomeViewModel(IncomeRepository()) as T
+            }
+        }
+    }
+
+    private val expenseViewModel: ExpenseViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return ExpenseViewModel(ExpenseRepository()) as T
             }
         }
     }
@@ -48,13 +61,21 @@ class TransactionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializar el RecyclerView y su adaptador
+        // Inicializar los adaptadores
         incomeAdapter = IncomeAdapter()
+        expenseAdapter = ExpenseAdapter()
+
+        // Configuración del RecyclerView
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = incomeAdapter
 
         binding.btnAddTransaction.setOnClickListener {
-            saveIncomeToFirebase()
+            val transactionType = binding.spinnerTransactionType.selectedItem.toString()
+            if (transactionType == "ingreso") {
+                saveIncomeToFirebase()
+            } else {
+                saveExpenseToFirebase()
+            }
         }
 
         binding.etDate.setOnClickListener {
@@ -64,10 +85,10 @@ class TransactionsFragment : Fragment() {
         binding.spinnerTransactionType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val transactionType = binding.spinnerTransactionType.selectedItem.toString()
-                if (transactionType == "Ingresos") {
-                    saveIncomeToFirebase()
+                if (transactionType == "ingreso") {
+                    binding.rvTransactions.adapter = incomeAdapter
                 } else {
-                    /*saveExpenseToFirebase() // Agrega una función para manejar gastos*/
+                    binding.rvTransactions.adapter = expenseAdapter
                 }
             }
 
@@ -77,6 +98,12 @@ class TransactionsFragment : Fragment() {
         lifecycleScope.launch {
             incomeViewModel.incomes.collect { incomes ->
                 updateIncomeList(incomes)
+            }
+        }
+
+        lifecycleScope.launch {
+            expenseViewModel.expenses.collect { expenses ->
+                updateExpenseList(expenses)
             }
         }
     }
@@ -97,6 +124,10 @@ class TransactionsFragment : Fragment() {
 
     private fun updateIncomeList(incomes: List<Income>) {
         incomeAdapter.submitList(incomes)
+    }
+
+    private fun updateExpenseList(expenses: List<Expense>) {
+        expenseAdapter.submitList(expenses)
     }
 
     private fun saveIncomeToFirebase() {
@@ -133,6 +164,44 @@ class TransactionsFragment : Fragment() {
                 incomeViewModel.fetchIncomes(userId) // Actualizar lista de ingresos
             } else {
                 Toast.makeText(requireContext(), "Error al guardar ingreso", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun saveExpenseToFirebase() {
+        val amountText = binding.etAmount.text.toString()
+        val name = binding.etDescription.text.toString()
+        val category = "General"
+
+        if (amountText.isBlank() || name.isBlank()) {
+            Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val amount = amountText.toDoubleOrNull()
+        if (amount == null || amount <= 0) {
+            Toast.makeText(requireContext(), "Ingrese un monto válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val userId = auth.currentUser?.uid ?: "usuario_demo"
+
+        val expense = Expense(
+            amount = amount,
+            name = name,
+            category = category,
+            date = Timestamp(Date()),
+            isRecurring = false,
+            recurrence = "ninguna",
+            userId = userId
+        )
+
+        expenseViewModel.addExpense(expense) { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Gasto guardado con éxito", Toast.LENGTH_SHORT).show()
+                expenseViewModel.fetchExpenses(userId) // Actualizar lista de gastos
+            } else {
+                Toast.makeText(requireContext(), "Error al guardar gasto", Toast.LENGTH_SHORT).show()
             }
         }
     }

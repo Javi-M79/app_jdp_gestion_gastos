@@ -1,40 +1,41 @@
 package com.example.app_jdp_gestion_gastos.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Income
+import com.example.app_jdp_gestion_gastos.databinding.ItemTransactionBinding
 
 class IncomeAdapter : ListAdapter<Income, IncomeAdapter.IncomeViewHolder>(IncomeDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IncomeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_transaction, parent, false)
-        return IncomeViewHolder(view)
+        val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return IncomeViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: IncomeViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class IncomeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val descriptionTextView: TextView = itemView.findViewById(R.id.tvDescription)
-        private val typeTextView: TextView = itemView.findViewById(R.id.tvType)
-        private val dateTextView: TextView = itemView.findViewById(R.id.tvDate)
-        private val amountTextView: TextView = itemView.findViewById(R.id.tvAmount)
-        private val iconImageView: ImageView = itemView.findViewById(R.id.ivIcon)
+    class IncomeViewHolder(private val binding: ItemTransactionBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(income: Income) {
-            descriptionTextView.text = income.name
-            typeTextView.text = "Ingreso"
-            dateTextView.text = income.date?.toDate().toString()
-            amountTextView.text = "$${income.amount}"
-            iconImageView.setImageResource(R.drawable.otros) // Ícono predeterminado
+            binding.tvDescription.text = income.name
+            binding.tvAmount.text = "${"%.2f".format(income.amount)} €"
+            binding.tvDate.text = income.date?.toDate().toString()
+            binding.tvType.text = "Ingreso"
+
+            // Cambiar color de texto según el tipo
+            binding.tvType.setTextColor(
+                ContextCompat.getColor(binding.root.context, R.color.primaryColor)
+            )
+
+            // Establecer icono (si no hay, poner uno predeterminado)
+            binding.ivIcon.setImageResource(R.drawable.otros)
         }
     }
 
