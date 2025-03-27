@@ -1,24 +1,25 @@
 package com.example.app_jdp_gestion_gastos.ui.fragments
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.SharedPreferences
-import android.graphics.Color
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.app_jdp_gestion_gastos.R
-import com.example.app_jdp_gestion_gastos.data.model.Transaction
+import com.example.app_jdp_gestion_gastos.data.model.Expense
+import com.example.app_jdp_gestion_gastos.data.model.Income
 import com.example.app_jdp_gestion_gastos.databinding.FragmentHomeBinding
-import com.example.app_jdp_gestion_gastos.ui.dialog.TransactionDialog
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
+import com.example.app_jdp_gestion_gastos.ui.dialog.CalendaryDialog
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.CalendaryViewModel
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,8 +27,12 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val transactionsList = mutableListOf<Transaction>()
-    private val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    private val calendaryViewModel: CalendaryViewModel by viewModels()
+    private var selectedDate: String = ""
+    private var dialogIsVisible = false
+
+    // Obtener el userId desde Firebase
+    private val userId: String = FirebaseAuth.getInstance().currentUser?.uid ?: "user_id_example"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,20 +44,28 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadTransactions()
 
-        val calendarView = binding.calendarView
+        calendaryViewModel.loadAllTransactions(userId)
 
-        // Listener para seleccionar fecha
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val selectedDate = String.format("%02d-%02d-%04d", dayOfMonth, month + 1, year)
-            showTransactionsForDate(selectedDate)
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            selectedDate = String.format("%02d-%02d-%04d", dayOfMonth, month + 1, year)
+            loadTransactionsForDate(selectedDate)
         }
 
-        // Resaltar los días con transacciones
-        highlightTransactionDays()
+        calendaryViewModel.incomeTransactions.observe(viewLifecycleOwner) { incomes ->
+            val expenses = calendaryViewModel.expenseTransactions.value ?: emptyList()
+            if (selectedDate.isNotEmpty() && incomes.isNotEmpty() && expenses.isNotEmpty()) {
+                updateTransactionDialog(selectedDate, incomes, expenses)
+            }
+        }
 
-        // Configurar el FloatingActionButton para agregar una nueva transacción
+        calendaryViewModel.expenseTransactions.observe(viewLifecycleOwner) { expenses ->
+            val incomes = calendaryViewModel.incomeTransactions.value ?: emptyList()
+            if (selectedDate.isNotEmpty() && expenses.isNotEmpty() && incomes.isNotEmpty()) {
+                updateTransactionDialog(selectedDate, incomes, expenses)
+            }
+        }
+
         binding.btnTransaction.setOnClickListener {
             showAddTransactionDialog()
         }
@@ -63,43 +76,75 @@ class HomeFragment : Fragment() {
         val descriptionEditText = dialogView.findViewById<EditText>(R.id.etDescription)
         val amountEditText = dialogView.findViewById<EditText>(R.id.etAmount)
         val dateEditText = dialogView.findViewById<EditText>(R.id.etDate)
+        val incomeRadioButton = dialogView.findViewById<RadioButton>(R.id.rbIncome)
+        val expenseRadioButton = dialogView.findViewById<RadioButton>(R.id.rbExpense)
 
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Añadir Transacción")
+        dateEditText.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePicker = DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
+                val formattedDate = String.format("%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear)
+                dateEditText.setText(formattedDate)
+                selectedDate = formattedDate
+                Log.d("Fecha seleccionada", selectedDate)  // Verificar la fecha seleccionada
+            }, year, month, day)
+
+            datePicker.show()
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Añadir Registro")
             .setView(dialogView)
             .setPositiveButton("Añadir") { _, _ ->
                 val description = descriptionEditText.text.toString()
                 val amountString = amountEditText.text.toString()
-                val date = dateEditText.text.toString()
+                val dateString = dateEditText.text.toString() // Usar la fecha seleccionada desde dateEditText
 
-                if (description.isNotEmpty() && amountString.isNotEmpty() && date.isNotEmpty()) {
-                    try {
-                        val amount = amountString.toDouble()
-                        val type = if (amount >= 0) "ingreso" else "gasto"
-
-                        val icon = when {
-                            description.contains("restaurante", true) -> R.drawable.restaurante
-                            description.contains("supermercado", true) -> R.drawable.supermercado
-                            else -> R.drawable.otros
+                if (description.isNotEmpty() && amountString.isNotEmpty() && dateString.isNotEmpty()) {
+                    val amount = amountString.toDoubleOrNull()
+                    if (amount != null) {
+                        // Convertir la fecha seleccionada a Timestamp
+                        val dateFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                        val date: Date? = try {
+                            dateFormatter.parse(dateString) // Parsear la fecha
+                        } catch (e: Exception) {
+                            null
                         }
 
-                        val newTransaction = Transaction(
-                            id = UUID.randomUUID().toString(),
-                            description = description,
-                            amount = amount,
-                            date = date,
-                            type = type,
-                            icon = icon
-                        )
+                        if (date != null) {
+                            val timestamp = Timestamp(date)
 
-                        transactionsList.add(newTransaction)
-                        saveTransactions()
-                        highlightTransactionDays()
-                        showTransactionsForDate(date)
-                        updateExpenseText()
-
-                        Toast.makeText(requireContext(), "Transacción añadida", Toast.LENGTH_SHORT).show()
-                    } catch (e: NumberFormatException) {
+                            // Verificar si es ingreso o gasto
+                            if (incomeRadioButton.isChecked) {
+                                val income = Income(
+                                    userId = userId,
+                                    name = description,
+                                    amount = amount,
+                                    date = timestamp,
+                                    category = "Salario",
+                                    isRecurring = false,
+                                    recurrence = ""
+                                )
+                                saveIncome(income)
+                            } else if (expenseRadioButton.isChecked) {
+                                val expense = Expense(
+                                    userId = userId,
+                                    name = description,
+                                    amount = amount,
+                                    date = timestamp,
+                                    category = "Otros",
+                                    isRecurring = false,
+                                    recurrence = ""
+                                )
+                                saveExpense(expense)
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Fecha no válida", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
                         Toast.makeText(requireContext(), "Por favor, ingresa un monto válido", Toast.LENGTH_SHORT).show()
                     }
                 } else {
@@ -109,117 +154,39 @@ class HomeFragment : Fragment() {
             .setNegativeButton("Cancelar", null)
             .show()
     }
-    private fun loadTransactions() {
-        try {
-            val sharedPreferences: SharedPreferences =
-                requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
-            val gson = Gson()
-            val json = sharedPreferences.getString("transactions", null)
-            val type = object : TypeToken<MutableList<Transaction>>() {}.type
-            val savedTransactions: MutableList<Transaction>? = gson.fromJson(json, type)
 
-            if (!savedTransactions.isNullOrEmpty()) {
-                transactionsList.clear()
-                transactionsList.addAll(savedTransactions)
+    private fun updateTransactionDialog(date: String, incomes: List<Income>, expenses: List<Expense>) {
+        if (isAdded && !dialogIsVisible) {
+            dialogIsVisible = true
+            val dialog = CalendaryDialog(date, incomes, expenses)
+
+            dialog.setOnDismissListener {
+                dialogIsVisible = false
             }
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Error al cargar transacciones", Toast.LENGTH_SHORT).show()
-        }
-        updateExpenseText() // Actualiza los gastos y presupuesto
-    }
 
-    private fun saveTransactions() {
-        try {
-            val sharedPreferences: SharedPreferences =
-                requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            val gson = Gson()
-            val json = gson.toJson(transactionsList)
-            editor.putString("transactions", json)
-            editor.apply()
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Error al guardar transacciones", Toast.LENGTH_SHORT).show()
-        }
-    }
+            if (incomes.isNotEmpty() || expenses.isNotEmpty()) {
+                dialog.updateData(incomes, expenses)
+            }
 
-    private fun showTransactionsForDate(selectedDate: String) {
-        val transactionsForDate = transactionsList.filter { it.date == selectedDate }
-
-        if (transactionsForDate.isNotEmpty()) {
-            val dialog = TransactionDialog(selectedDate, transactionsForDate)
             dialog.show(parentFragmentManager, "TransactionDialog")
-        } else {
-            Toast.makeText(requireContext(), "No hay transacciones en esta fecha", Toast.LENGTH_SHORT).show()
-        }
-    }
-    private fun highlightTransactionDays() {
-        val calendarView = binding.calendarView
-
-        // Obtener las fechas de las transacciones
-        val transactionDates = transactionsList.map { it.date }
-
-        // Convertir las fechas a formato Date (día, mes y año)
-        val calendar = Calendar.getInstance()
-
-        transactionDates.forEach { date ->
-            val dateParts = date.split("-")
-            if (dateParts.size == 3) {
-                val day = dateParts[0].toInt()
-                val month = dateParts[1].toInt() - 1 // Los meses en Calendar son 0-indexados
-                val year = dateParts[2].toInt()
-
-                // Establecer la fecha en el calendario
-                calendar.set(year, month, day)
-
-                // Resaltar el día en el calendario
-                calendarView.setDate(calendar.timeInMillis, false, true)
-            }
         }
     }
 
-    private fun updateExpenseText() {
-        // Cargar el presupuesto desde SharedPreferences
-        val sharedPreferences: SharedPreferences =
-            requireActivity().getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        val monthlyBudget = sharedPreferences.getFloat("monthlyBudget", 0f)
-
-        // Calcular el total de los gastos
-        val totalExpenses = transactionsList.sumOf { it.amount }
-
-        // Actualizar el TextView con el gasto y el presupuesto
-        binding.tvPresupuesto.text = "Gastos: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
-
-        // Comprobar si el gasto ha alcanzado el 80% del presupuesto
-        if (totalExpenses >= monthlyBudget * 0.8) {
-            showBudgetWarningDialog(totalExpenses, monthlyBudget)
-        }
+    private fun saveIncome(income: Income) {
+        calendaryViewModel.addIncome(income)
     }
 
-    private fun showBudgetWarningDialog(totalExpenses: Double, monthlyBudget: Float) {
-        val progress = (totalExpenses / monthlyBudget * 100).toInt()
-
-        // Elegir el color según el porcentaje
-        val color = when {
-            progress < 60 -> Color.GREEN
-            progress in 60..80 -> Color.MAGENTA
-            else -> Color.RED
-        }
-
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_budget_warning, null)
-        val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
-        val textViewMessage = dialogView.findViewById<TextView>(R.id.tvWarningMessage)
-
-        progressBar.max = 100
-        progressBar.progress = progress
-        textViewMessage.text = "Has alcanzado el $progress% de tu presupuesto mensual.\nGastos actuales: ${"%.2f".format(totalExpenses)} € / Presupuesto: ${"%.2f".format(monthlyBudget)} €"
-        textViewMessage.setTextColor(color)
-
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("¡Atención!")
-            .setView(dialogView)
-            .setPositiveButton("OK", null)
-            .show()
+    private fun saveExpense(expense: Expense) {
+        calendaryViewModel.addExpense(expense)
     }
+
+    private fun loadTransactionsForDate(date: String) {
+        calendaryViewModel.clearIncomeTransactions()
+        calendaryViewModel.clearExpenseTransactions()
+        calendaryViewModel.loadIncomesForDate(date)
+        calendaryViewModel.loadExpensesForDate(date)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
