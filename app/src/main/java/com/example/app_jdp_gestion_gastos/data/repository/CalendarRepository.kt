@@ -1,12 +1,12 @@
-package com.example.app_jdp_gestion_gastos.data.repository
-
+import android.util.Log
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.data.model.Income
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.*
 
-class CalendaryRepository {
+class CalendarRepository {
     private val db = FirebaseFirestore.getInstance()
 
     // Obtener todos los ingresos de un usuario
@@ -37,10 +37,20 @@ class CalendaryRepository {
             }
     }
 
-    // Obtener ingresos por fecha y usuario
     fun getIncomeForDate(date: String, callback: (List<Income>) -> Unit) {
         val startOfDay = getStartOfDay(date)
+        if (startOfDay == null) {
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            callback(emptyList())
+            return
+        }
+
         val endOfDay = getEndOfDay(date)
+        if (endOfDay == null){
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            callback(emptyList())
+            return
+        }
 
         db.collection("incomes")
             .whereGreaterThanOrEqualTo("date", startOfDay)
@@ -48,17 +58,29 @@ class CalendaryRepository {
             .get()
             .addOnSuccessListener { result ->
                 val incomes = result.mapNotNull { it.toObject(Income::class.java) }
+                Log.d("CalendaryRepository", "Ingresos encontrados: ${incomes.size}")
                 callback(incomes)
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
+                Log.e("CalendaryRepository", "Error al obtener ingresos: ${exception.message}")
                 callback(emptyList())
             }
     }
 
-    // Obtener gastos por fecha y usuario
     fun getExpenseForDate(date: String, callback: (List<Expense>) -> Unit) {
         val startOfDay = getStartOfDay(date)
+        if (startOfDay == null) {
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            callback(emptyList())
+            return
+        }
+
         val endOfDay = getEndOfDay(date)
+        if (endOfDay == null){
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            callback(emptyList())
+            return
+        }
 
         db.collection("expenses")
             .whereGreaterThanOrEqualTo("date", startOfDay)
@@ -66,17 +88,18 @@ class CalendaryRepository {
             .get()
             .addOnSuccessListener { result ->
                 val expenses = result.mapNotNull { it.toObject(Expense::class.java) }
+                Log.d("CalendaryRepository", "Gastos encontrados: ${expenses.size}")
                 callback(expenses)
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
+                Log.e("CalendaryRepository", "Error al obtener gastos: ${exception.message}")
                 callback(emptyList())
             }
     }
 
     // Guardar un ingreso
     fun saveIncome(income: Income, callback: (Boolean) -> Unit) {
-        // Aquí utilizamos Timestamp.now() para la fecha actual
-        val incomeWithTimestamp = income.copy(date = Timestamp.now())
+        val incomeWithTimestamp = income.copy(date = income.date)
         db.collection("incomes").add(incomeWithTimestamp)
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
@@ -84,56 +107,60 @@ class CalendaryRepository {
 
     // Guardar un gasto
     fun saveExpense(expense: Expense, callback: (Boolean) -> Unit) {
-        // Aquí utilizamos Timestamp.now() para la fecha actual
-        val expenseWithTimestamp = expense.copy(date = Timestamp.now())
+        val expenseWithTimestamp = expense.copy(date = expense.date)
         db.collection("expenses").add(expenseWithTimestamp)
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
     }
 
-    // Función para obtener el inicio del día en Timestamp
-    private fun getStartOfDay(date: String): Timestamp {
-        try {
-            val calendar = Calendar.getInstance()
-            val day = date.substring(0, 2).toInt() // Día
-            val month = date.substring(3, 5).toInt() - 1 // Mes (0-11)
-            val year = date.substring(6, 10).toInt() // Año
+    private fun parseDate(date: String): Date? {
+        val possibleFormats = arrayOf(
+            "dd-MM-yyyy", // 20-03-2025
+            "EEE MMM dd HH:mm:ss zzz yyyy" // Wed Mar 19 00:00:00 GMT+01:00 2025
+        )
 
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month)
-            calendar.set(Calendar.DAY_OF_MONTH, day)
-            calendar.set(Calendar.HOUR_OF_DAY, 0) // Hora al inicio del día
-            calendar.set(Calendar.MINUTE, 0) // Minuto 0
-            calendar.set(Calendar.SECOND, 0) // Segundo 0
-            calendar.set(Calendar.MILLISECOND, 0) // Milisegundo 0
+        for (format in possibleFormats) {
+            try {
+                val dateFormat = SimpleDateFormat(format, Locale.ENGLISH)
+                return dateFormat.parse(date)
+            } catch (e: Exception) {
+                // Ignoramos y probamos con el siguiente formato
+            }
+        }
 
-            return Timestamp(calendar.time)
+        Log.e("CalendaryRepository", "Error al parsear la fecha: $date")
+        return null
+    }
+
+    private fun getStartOfDay(date: String): Timestamp? {
+        val calendar = Calendar.getInstance()
+        val parsedDate = parseDate(date) ?: return null
+
+        return try {
+            calendar.time = parsedDate
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            Timestamp(calendar.time)
         } catch (e: Exception) {
-            e.printStackTrace()  // Añadir manejo de errores para debugging
-            return Timestamp(Date())  // Retorna la fecha actual en caso de error
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            null
         }
     }
 
-    // Función para obtener el final del día en Timestamp
-    private fun getEndOfDay(date: String): Timestamp {
-        try {
-            val calendar = Calendar.getInstance()
-            val day = date.substring(0, 2).toInt() // Día
-            val month = date.substring(3, 5).toInt() - 1 // Mes (0-11)
-            val year = date.substring(6, 10).toInt() // Año
+    private fun getEndOfDay(date: String): Timestamp? {
+        val calendar = Calendar.getInstance()
+        val parsedDate = parseDate(date) ?: return null
 
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month)
-            calendar.set(Calendar.DAY_OF_MONTH, day)
-            calendar.set(Calendar.HOUR_OF_DAY, 23) // Hora al final del día
-            calendar.set(Calendar.MINUTE, 59) // Minuto 59
-            calendar.set(Calendar.SECOND, 59) // Segundo 59
-            calendar.set(Calendar.MILLISECOND, 999) // Milisegundo 999
-
-            return Timestamp(calendar.time)
+        return try {
+            calendar.time = parsedDate
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            Timestamp(calendar.time)
         } catch (e: Exception) {
-            e.printStackTrace()  // Añadir manejo de errores para debugging
-            return Timestamp(Date())  // Retorna la fecha actual en caso de error
+            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
+            null
         }
     }
 }
