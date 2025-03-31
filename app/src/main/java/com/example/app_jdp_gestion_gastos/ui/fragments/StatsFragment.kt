@@ -1,23 +1,29 @@
 package com.example.app_jdp_gestion_gastos.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.app_jdp_gestion_gastos.data.model.Transaction
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Observer
 import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModel
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModelFactory
+import com.example.app_jdp_gestion_gastos.data.repository.StatsRepository
+import kotlinx.coroutines.launch
 
 class StatsFragment : Fragment() {
 
     private var _binding: FragmentStatsBinding? = null
     private val binding get() = _binding!!
 
-    private val transactionsList = mutableListOf<Transaction>()
+    // Crear instancia del ViewModel utilizando el ViewModelFactory
+    private val statsViewModel: StatsViewModel by viewModels {
+        StatsViewModelFactory(StatsRepository()) // Pasar el repositorio
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,45 +35,34 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadTransactions()
-        updateStats()
-    }
 
-    fun reloadStats() {
-        loadTransactions()  // Recargar las transacciones desde SharedPreferences
-        updateStats()       // Actualizar las estadísticas
-    }
+        // Cargar las estadísticas
+        statsViewModel.loadStats()
 
-    private fun loadTransactions() {
-        try {
-            val sharedPreferences = requireActivity().getSharedPreferences("transactions_prefs", Context.MODE_PRIVATE)
-            val gson = Gson()
-            val json = sharedPreferences.getString("transactions", null)
-            val type = object : TypeToken<MutableList<Transaction>>() {}.type
-            val savedTransactions: MutableList<Transaction>? = gson.fromJson(json, type)
+        // Observar el total de ingresos
+        statsViewModel.totalIngresos.observe(viewLifecycleOwner, Observer { totalIngresos ->
+            binding.tvTotalIngresos.text = "Total de Ingresos: ${"%.2f".format(totalIngresos)} €"
+        })
 
-            if (savedTransactions != null) {
-                transactionsList.clear()
-                transactionsList.addAll(savedTransactions)
-            }
-        } catch (e: Exception) {
-            Log.e("StatsFragment", "Error al cargar transacciones: ${e.message}")
-        }
-    }
+        // Observar el total de gastos
+        statsViewModel.totalGastos.observe(viewLifecycleOwner, Observer { totalGastos ->
+            binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(totalGastos)} €"
+        })
 
-    private fun updateStats() {
-        val totalGastos = transactionsList.sumByDouble { it.amount }
-        val promedioGastos = if (transactionsList.isNotEmpty()) {
-            totalGastos / transactionsList.size
-        } else {
-            0.0
-        }
-        val numTransacciones = transactionsList.size
+        // Observar el promedio de gastos
+        statsViewModel.promedioGastos.observe(viewLifecycleOwner, Observer { promedioGastos ->
+            binding.tvPromedioGastos.text = "Promedio de Gastos: ${"%.2f".format(promedioGastos)} €"
+        })
 
-        // Actualizamos los TextViews con las estadísticas calculadas
-        binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(totalGastos)} €"
-        binding.tvPromedioGastos.text = "Promedio de Gastos: ${"%.2f".format(promedioGastos)} €"
-        binding.tvNumTransacciones.text = "Número de Transacciones: $numTransacciones"
+        // Observar el número de transacciones de ingresos
+        statsViewModel.numTransaccionesIngresos.observe(viewLifecycleOwner, Observer { numTransaccionesIngresos ->
+            binding.tvNumTransaccionesIngresos.text = "Número de Ingresos: $numTransaccionesIngresos"
+        })
+
+        // Observar el número de transacciones de gastos
+        statsViewModel.numTransaccionesGastos.observe(viewLifecycleOwner, Observer { numTransaccionesGastos ->
+            binding.tvNumTransaccionesGastos.text = "Número de Gastos: $numTransaccionesGastos"
+        })
     }
 
     override fun onDestroyView() {
