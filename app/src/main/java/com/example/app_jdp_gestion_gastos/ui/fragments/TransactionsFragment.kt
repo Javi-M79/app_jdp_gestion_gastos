@@ -9,21 +9,20 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.data.model.Income
-import com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository
-import com.example.app_jdp_gestion_gastos.data.repository.IncomeRepository
+import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentTransactionsBinding
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModel
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModel
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
 import com.example.app_jdp_gestion_gastos.adapter.ExpenseAdapter
 import com.example.app_jdp_gestion_gastos.adapter.IncomeAdapter
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.*
 
 class TransactionsFragment : Fragment() {
@@ -32,21 +31,11 @@ class TransactionsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var incomeAdapter: IncomeAdapter
     private lateinit var expenseAdapter: ExpenseAdapter
+    private var selectedDate: Date? = Date()
 
-    private val incomeViewModel: IncomeViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return IncomeViewModel(IncomeRepository()) as T
-            }
-        }
-    }
-
-    private val expenseViewModel: ExpenseViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return ExpenseViewModel(ExpenseRepository()) as T
-            }
-        }
+    // Utilizando ViewModel con Factory
+    private val transactionsViewModel: TransactionsViewModel by viewModels {
+        TransactionsViewModelFactory(TransactionsRepository())
     }
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -61,11 +50,9 @@ class TransactionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializar los adaptadores
         incomeAdapter = IncomeAdapter()
         expenseAdapter = ExpenseAdapter()
 
-        // Configuración del RecyclerView
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = incomeAdapter
 
@@ -96,16 +83,24 @@ class TransactionsFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            incomeViewModel.incomes.collect { incomes ->
-                updateIncomeList(incomes)
+            transactionsViewModel.incomes.collect { incomes ->
+                transactionsViewModel.updateIncomeList(incomes)
+                incomeAdapter.submitList(incomes)
             }
         }
 
         lifecycleScope.launch {
-            expenseViewModel.expenses.collect { expenses ->
-                updateExpenseList(expenses)
+            transactionsViewModel.expenses.collect { expenses ->
+                transactionsViewModel.updateExpenseList(expenses)
+                expenseAdapter.submitList(expenses)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        transactionsViewModel.fetchIncomes()
+        transactionsViewModel.fetchExpenses()
     }
 
     private fun showDatePickerDialog() {
@@ -115,25 +110,20 @@ class TransactionsFragment : Fragment() {
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePicker = DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
-            val formattedDate = String.format("%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear)
+            val selectedCalendar = Calendar.getInstance()
+            selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+            selectedDate = selectedCalendar.time
+            val formattedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(selectedDate!!)
             binding.etDate.setText(formattedDate)
         }, year, month, day)
 
         datePicker.show()
     }
 
-    private fun updateIncomeList(incomes: List<Income>) {
-        incomeAdapter.submitList(incomes)
-    }
-
-    private fun updateExpenseList(expenses: List<Expense>) {
-        expenseAdapter.submitList(expenses)
-    }
-
     private fun saveIncomeToFirebase() {
         val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
-        val category = "General"
+        val category = "Ingresos"
 
         if (amountText.isBlank() || name.isBlank()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
@@ -152,16 +142,16 @@ class TransactionsFragment : Fragment() {
             amount = amount,
             name = name,
             category = category,
-            date = Timestamp(Date()),
+            date = Timestamp(selectedDate ?: Date()),
             isRecurring = false,
             recurrence = "ninguna",
             userId = userId
         )
 
-        incomeViewModel.addIncome(income) { success ->
+        transactionsViewModel.addIncome(income) { success ->
             if (success) {
                 Toast.makeText(requireContext(), "Ingreso guardado con éxito", Toast.LENGTH_SHORT).show()
-                incomeViewModel.fetchIncomes(userId) // Actualizar lista de ingresos
+                transactionsViewModel.fetchIncomes()
             } else {
                 Toast.makeText(requireContext(), "Error al guardar ingreso", Toast.LENGTH_SHORT).show()
             }
@@ -171,7 +161,7 @@ class TransactionsFragment : Fragment() {
     private fun saveExpenseToFirebase() {
         val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
-        val category = "General"
+        val category = "Gastos"
 
         if (amountText.isBlank() || name.isBlank()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
@@ -190,16 +180,16 @@ class TransactionsFragment : Fragment() {
             amount = amount,
             name = name,
             category = category,
-            date = Timestamp(Date()),
+            date = Timestamp(selectedDate ?: Date()),
             isRecurring = false,
             recurrence = "ninguna",
             userId = userId
         )
 
-        expenseViewModel.addExpense(expense) { success ->
+        transactionsViewModel.addExpense(expense) { success ->
             if (success) {
                 Toast.makeText(requireContext(), "Gasto guardado con éxito", Toast.LENGTH_SHORT).show()
-                expenseViewModel.fetchExpenses(userId) // Actualizar lista de gastos
+                transactionsViewModel.fetchExpenses()
             } else {
                 Toast.makeText(requireContext(), "Error al guardar gasto", Toast.LENGTH_SHORT).show()
             }
