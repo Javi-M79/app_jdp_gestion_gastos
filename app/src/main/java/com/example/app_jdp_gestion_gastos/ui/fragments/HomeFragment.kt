@@ -57,8 +57,8 @@ class HomeFragment : Fragment() {
             Log.d("HomeFragment", "Ingresos observados: ${incomes.size}")
             val expenses = calendaryViewModel.expenseTransactions.value ?: emptyList()
 
-            // Si se seleccionó una fecha y hay ingresos, actualizar el diálogo
-            if (selectedDate.isNotEmpty() && incomes.isNotEmpty()) {
+            // Si se seleccionó una fecha, actualizar el diálogo con ambos ingresos y gastos
+            if (selectedDate.isNotEmpty()) {
                 updateTransactionDialog(selectedDate, incomes, expenses)
             }
         }
@@ -67,8 +67,8 @@ class HomeFragment : Fragment() {
             Log.d("HomeFragment", "Gastos observados: ${expenses.size}")
             val incomes = calendaryViewModel.incomeTransactions.value ?: emptyList()
 
-            // Si se seleccionó una fecha y hay gastos, actualizar el diálogo
-            if (selectedDate.isNotEmpty() && expenses.isNotEmpty()) {
+            // Si se seleccionó una fecha, actualizar el diálogo con ambos ingresos y gastos
+            if (selectedDate.isNotEmpty()) {
                 updateTransactionDialog(selectedDate, incomes, expenses)
             }
         }
@@ -184,12 +184,17 @@ class HomeFragment : Fragment() {
 
             Log.d("CalendaryDialog", "Mostrando diálogo...")
             dialog.show(parentFragmentManager, "TransactionDialog")
+        } else if (dialogIsVisible) {
+            // Si el diálogo ya está visible, solo actualiza los datos.
+            val calendaryDialog = parentFragmentManager.findFragmentByTag("TransactionDialog") as? CalendaryDialog
+            calendaryDialog?.updateData(incomes, expenses)
+
+            // Línea añadida según tu petición
+            calendaryDialog?.updateData(incomes, expenses)
         } else {
             Log.e("CalendaryDialog", "No se puede mostrar el diálogo. isAdded: $isAdded, dialogIsVisible: $dialogIsVisible")
         }
-    }
-
-    private fun saveIncome(income: Income) {
+    }    private fun saveIncome(income: Income) {
         calendaryViewModel.addIncome(income)
     }
 
