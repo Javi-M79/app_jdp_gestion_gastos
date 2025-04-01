@@ -12,8 +12,7 @@ data class Income(
     @get:PropertyName("category") @set:PropertyName("category") var category: String = "",
     @get:PropertyName("isRecurring") @set:PropertyName("isRecurring") var isRecurring: Boolean = false,
     @get:PropertyName("recurrence") @set:PropertyName("recurrence") var recurrence: String = "",
-
-
+    @get:PropertyName("id") @set:PropertyName("id") var id: String = ""  // Añadido el campo id
     ): Serializable
 
 
