@@ -2,6 +2,7 @@ package com.example.app_jdp_gestion_gastos.ui.fragments
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.data.model.Income
-import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentTransactionsBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
 import com.example.app_jdp_gestion_gastos.adapter.ExpenseAdapter
 import com.example.app_jdp_gestion_gastos.adapter.IncomeAdapter
+import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
@@ -32,8 +33,8 @@ class TransactionsFragment : Fragment() {
     private lateinit var incomeAdapter: IncomeAdapter
     private lateinit var expenseAdapter: ExpenseAdapter
     private var selectedDate: Date? = Date()
+    private var selectedTransactionId: String? = null
 
-    // Utilizando ViewModel con Factory
     private val transactionsViewModel: TransactionsViewModel by viewModels {
         TransactionsViewModelFactory(TransactionsRepository())
     }
@@ -50,8 +51,8 @@ class TransactionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        incomeAdapter = IncomeAdapter()
-        expenseAdapter = ExpenseAdapter()
+        incomeAdapter = IncomeAdapter { income -> onTransactionSelected(income.id) }
+        expenseAdapter = ExpenseAdapter { expense -> onTransactionSelected(expense.id) }
 
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = incomeAdapter
@@ -82,16 +83,20 @@ class TransactionsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        binding.btnDeleteTransaction.setOnClickListener {
+            selectedTransactionId?.let {
+                deleteTransaction(it)
+            } ?: Toast.makeText(requireContext(), "Selecciona una transacción para eliminar", Toast.LENGTH_SHORT).show()
+        }
+
         lifecycleScope.launch {
             transactionsViewModel.incomes.collect { incomes ->
-                transactionsViewModel.updateIncomeList(incomes)
                 incomeAdapter.submitList(incomes)
             }
         }
 
         lifecycleScope.launch {
             transactionsViewModel.expenses.collect { expenses ->
-                transactionsViewModel.updateExpenseList(expenses)
                 expenseAdapter.submitList(expenses)
             }
         }
@@ -123,7 +128,6 @@ class TransactionsFragment : Fragment() {
     private fun saveIncomeToFirebase() {
         val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
-        val category = "Ingresos"
 
         if (amountText.isBlank() || name.isBlank()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
@@ -141,7 +145,7 @@ class TransactionsFragment : Fragment() {
         val income = Income(
             amount = amount,
             name = name,
-            category = category,
+            category = "Ingresos",
             date = Timestamp(selectedDate ?: Date()),
             isRecurring = false,
             recurrence = "ninguna",
@@ -161,7 +165,6 @@ class TransactionsFragment : Fragment() {
     private fun saveExpenseToFirebase() {
         val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
-        val category = "Gastos"
 
         if (amountText.isBlank() || name.isBlank()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
@@ -179,7 +182,7 @@ class TransactionsFragment : Fragment() {
         val expense = Expense(
             amount = amount,
             name = name,
-            category = category,
+            category = "Gastos",
             date = Timestamp(selectedDate ?: Date()),
             isRecurring = false,
             recurrence = "ninguna",
@@ -194,6 +197,24 @@ class TransactionsFragment : Fragment() {
                 Toast.makeText(requireContext(), "Error al guardar gasto", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun deleteTransaction(transactionId: String) {
+        Log.d("TransactionsFragment", "Intentando eliminar transacción con ID: $transactionId")
+        transactionsViewModel.deleteTransaction(transactionId) { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Transacción eliminada con éxito", Toast.LENGTH_SHORT).show()
+                transactionsViewModel.fetchIncomes()
+                transactionsViewModel.fetchExpenses()
+            } else {
+                Toast.makeText(requireContext(), "Error al eliminar la transacción", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun onTransactionSelected(transactionId: String) {
+        selectedTransactionId = transactionId
+        binding.btnDeleteTransaction.isEnabled = true
     }
 
     override fun onDestroyView() {
