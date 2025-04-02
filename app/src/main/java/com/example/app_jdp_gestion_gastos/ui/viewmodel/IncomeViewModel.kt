@@ -21,6 +21,12 @@ class IncomeViewModel(private val incomeRepository: IncomeRepository) : ViewMode
         }
     }
 
+    //Modificar ingreso
+    // TODO
+
+
+
+
     fun fetchIncomes(userId: String) {
         viewModelScope.launch {
             val incomesList = incomeRepository.getIncomesByUser(userId)
