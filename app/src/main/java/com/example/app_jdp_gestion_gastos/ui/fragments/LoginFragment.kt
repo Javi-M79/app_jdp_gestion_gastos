@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.repository.UserRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentLoginBinding
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.AppViewModelFactory
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.UserModelFactory
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -35,7 +35,7 @@ class LoginFragment : Fragment() {
 
     //Inicio del UserViewModel que recibe el reposotory a traves de ViewModdel factory
     private val userViewModel: UserViewModel by viewModels {
-        AppViewModelFactory(userRepository)
+        UserModelFactory(userRepository)
     }
 
 

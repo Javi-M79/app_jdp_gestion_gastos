@@ -19,6 +19,9 @@ class IncomeRepository {
         }
     }
 
+    // Modificar ingresos en Firestore
+
+
     // Obtener ingresos de un usuario específico
     suspend fun getIncomesByUser(userId: String): List<Income> {
         return try {
