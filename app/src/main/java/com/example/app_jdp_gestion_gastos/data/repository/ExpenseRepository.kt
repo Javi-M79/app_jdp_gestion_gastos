@@ -12,6 +12,7 @@ class ExpenseRepository {
 
     val expenses = MutableStateFlow<List<Expense>>(emptyList())
 
+    // Obtener gastos del usuario actual
     suspend fun fetchExpenses(userId: String) {
         val snapshot = db.collection("expenses")
             .whereEqualTo("userId", userId)
@@ -21,9 +22,30 @@ class ExpenseRepository {
         expenses.value = expensesList
     }
 
+
+    //Agregar gastos
     fun addExpense(expense: Expense, onComplete: (Boolean) -> Unit) {
         db.collection("expenses").add(expense)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
     }
+
+    //Modificar gasto
+
+    fun updateExpenseFields(
+        expenseId: String,
+        fieldsToUpdate: Map<String, Any>,
+        onComplete: (Boolean) -> Unit
+    ) {
+        FirebaseFirestore.getInstance()
+            .collection("expenses")
+            .document(expenseId)
+            .update(fieldsToUpdate)
+            .addOnSuccessListener { onComplete -> true }
+            .addOnFailureListener { onComplete -> false }
+
+
+    }
+
+
 }
