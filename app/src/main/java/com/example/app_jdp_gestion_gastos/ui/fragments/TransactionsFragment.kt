@@ -19,6 +19,7 @@ import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
 import com.example.app_jdp_gestion_gastos.adapter.ExpenseAdapter
 import com.example.app_jdp_gestion_gastos.adapter.IncomeAdapter
 import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
+import com.example.app_jdp_gestion_gastos.ui.dialog.EditTransactionDialog
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
@@ -52,7 +53,24 @@ class TransactionsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         incomeAdapter = IncomeAdapter { income -> onTransactionSelected(income.id) }
-        expenseAdapter = ExpenseAdapter { expense -> onTransactionSelected(expense.id) }
+
+        expenseAdapter = ExpenseAdapter { expense ->
+            // Guardar ID seleccionado para eliminar el gasto.
+            onTransactionSelected(expense.id ?: "")
+
+            // Mostrar el diálogo de edición
+            val dialog = EditTransactionDialog.newInstance(
+                transactionId = expense.id ?: "",
+                name = expense.name,
+                amount = expense.amount,
+                category = expense.category,
+                isRecurring = expense.isRecurring,
+                recurrence = expense.recurrence,
+                date = expense.date,
+                isIncome = false // esto marca que es un gasto
+            )
+            dialog.show(parentFragmentManager, "EditExpenseDialog")
+        }
 
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = incomeAdapter
