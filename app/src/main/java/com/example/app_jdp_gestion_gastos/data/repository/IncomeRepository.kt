@@ -22,6 +22,33 @@ class IncomeRepository {
     // Modificar ingresos en Firestore
 
 
+    fun updateIncomeFields(
+        incomeId: String,
+        fieldsToUpdate: Map<String, Any>,
+        onComplete: (Boolean) -> Unit
+    ) {
+
+        //Conexion con firebase
+        FirebaseFirestore.getInstance()
+            //Acceso a la coleccion
+            .collection("incomes")
+            //Acceso al documento por ID
+            .document("incomeId")
+            //Aplicar solo los campos modificados
+            .update(fieldsToUpdate)
+            //Exito
+            .addOnSuccessListener {
+                onComplete(true)
+            }
+            //Fallo
+            .addOnFailureListener {
+                onComplete(false)
+            }
+
+
+    }
+
+
     // Obtener ingresos de un usuario específico
     suspend fun getIncomesByUser(userId: String): List<Income> {
         return try {
@@ -31,4 +58,6 @@ class IncomeRepository {
             emptyList()
         }
     }
+
+
 }
