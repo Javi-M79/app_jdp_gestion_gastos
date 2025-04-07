@@ -41,8 +41,12 @@ class ExpenseRepository {
             .collection("expenses")
             .document(expenseId)
             .update(fieldsToUpdate)
-            .addOnSuccessListener { onComplete -> true }
-            .addOnFailureListener { onComplete -> false }
+            .addOnSuccessListener {
+                onComplete(true)
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
 
 
     }
