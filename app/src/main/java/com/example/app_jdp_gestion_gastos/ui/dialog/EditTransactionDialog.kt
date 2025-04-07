@@ -2,16 +2,18 @@ package com.example.app_jdp_gestion_gastos.ui.dialog
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import androidx.fragment.app.DialogFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.app_jdp_gestion_gastos.databinding.DialogEditTransactionBinding
-import java.util.Date
-
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModel
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class EditTransactionDialog : DialogFragment() {
@@ -97,15 +99,88 @@ class EditTransactionDialog : DialogFragment() {
             ).show()
         }
 
-        // Botón guardar  (implementar con Firebase)
+        //Logica boton guardar
         binding.btnSave.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Guardando cambios (falta implementar)",
-                Toast.LENGTH_SHORT
-            ).show()
-            dismiss()
+
+            val args = requireArguments()
+
+            //Datos recogidos de firestore
+            val originalName = args.getString("name") ?: ""
+            val originalCategory = args.getString("category") ?: ""
+            val originalAmount = args.getDouble("amount")
+            val originalIsRecurring = args.getBoolean("isRecurring")
+            val originalRecurrence = args.getString("recurrence") ?: ""
+            val originalDateMillis = args.getLong("dateMillis")
+
+            // Nuevos campos
+            val updatedFields = mutableMapOf<String, Any>()
+
+
+            //Modificacion del nombre.
+            val newName = binding.etName.text.toString()
+            // Si el nuevo nombre es diferente al original actualizamos el campo al nuevo nombre.
+            if (newName != originalName) updatedFields["name"] = newName
+
+            //Modificacion de categoria
+            val newCategory = binding.etCategory.text.toString()
+            // Si la nueva categoria es diferente al original actualizamos el campo a la nueva categoria.
+            if (newCategory != originalCategory) updatedFields["category"] = newCategory
+
+
+            // Modificacion del montante
+            val newAmount = binding.etAmount.text.toString().toDoubleOrNull()
+            //// Si el nuevo montante es diferente al original y no es nulo actualizamos el campo al nuevo montante
+            if (newAmount != null && newAmount != originalAmount) {
+                updatedFields["amount"] = newAmount
+            }
+
+            //Modificacion de la recurrencia
+            val newIsRecurring = binding.switchRecurring.isChecked
+            if (newIsRecurring != originalIsRecurring) updatedFields["isRecurring"] = newIsRecurring
+
+            //Nueva recurrencia
+            val newRecurrence = binding.spinnerRecurrence.selectedItem.toString()
+            if (newRecurrence != originalRecurrence) updatedFields["recurrence"] = newRecurrence
+
+            //Actializacion fecha y hora
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val dateParsed = dateFormat.parse(binding.etDate.text.toString())
+            if (dateParsed != null && dateParsed.time != originalDateMillis) {
+                updatedFields["date"] =
+                    com.google.firebase.Timestamp(dateParsed)
+            }
+
+            //Si no hay cambios que guardar
+            if (updatedFields.isEmpty()) {
+                Toast.makeText(requireContext(), "No hay cambios para guardar", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
+            //Enviamos los datos al ViewModel
+            val expenseId = args.getString("transactionId") ?: return@setOnClickListener
+            val factory = ExpenseViewModelFactory(com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository())
+            val viewModel = ViewModelProvider(this, factory)[ExpenseViewModel::class.java]
+
+
+            viewModel.updateExpenseFields(expenseId, updatedFields) { success ->
+                if (success) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Gasto actualizado correctamente",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al actualizar el gasto",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                dismiss()
+            }
         }
+
     }
 
     override fun onDestroyView() {
