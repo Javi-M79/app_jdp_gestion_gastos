@@ -66,7 +66,7 @@ class TransactionsFragment : Fragment() {
                 category = expense.category,
                 isRecurring = expense.isRecurring,
                 recurrence = expense.recurrence,
-                date = expense.date,
+                date = expense.date?.toDate()?.time?: System.currentTimeMillis(),
                 isIncome = false // esto marca que es un gasto
             )
             dialog.show(parentFragmentManager, "EditExpenseDialog")
@@ -118,6 +118,8 @@ class TransactionsFragment : Fragment() {
                 expenseAdapter.submitList(expenses)
             }
         }
+        //Recarga los datos si hay actualizaciones
+        transactionsViewModel.fetchExpenses()
     }
 
     override fun onResume() {
