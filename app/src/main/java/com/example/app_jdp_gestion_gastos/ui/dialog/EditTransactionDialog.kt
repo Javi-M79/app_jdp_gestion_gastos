@@ -150,7 +150,7 @@ class EditTransactionDialog : DialogFragment() {
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             val dateParsed = try {
                 dateFormat.parse(binding.etDate.text.toString())
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 null
             }
             if (dateParsed != null && dateParsed.time != originalDateMillis) {
@@ -158,7 +158,11 @@ class EditTransactionDialog : DialogFragment() {
                     com.google.firebase.Timestamp(dateParsed)
             }
             if (dateParsed == null) {
-                Toast.makeText(requireContext(), "La fecha introducida no es válida", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "La fecha introducida no es válida",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
 
@@ -168,11 +172,18 @@ class EditTransactionDialog : DialogFragment() {
                     .show()
                 return@setOnClickListener
             }
+            //Verificacion de campos actualizados.
+            Toast.makeText(
+                requireContext(),
+                "Campos actualizados: ${updatedFields.keys.joinToString()}",
+                Toast.LENGTH_SHORT
+            ).show()
 
             //Enviamos los datos al ViewModel
             val transactionId = args.getString("transactionId")
             if (transactionId.isNullOrBlank()) {
-                Toast.makeText(requireContext(), "ID de transacción inválido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "ID de transacción inválido", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
             val isIncome = args.getBoolean("isIncome")
