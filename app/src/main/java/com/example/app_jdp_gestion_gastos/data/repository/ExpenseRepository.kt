@@ -1,5 +1,6 @@
 package com.example.app_jdp_gestion_gastos.data.repository
 
+import android.util.Log
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,38 +19,46 @@ class ExpenseRepository {
             .whereEqualTo("userId", userId)
             .get()
             .await()
-        val expensesList = snapshot.toObjects(Expense::class.java)
+        val expensesList = snapshot.documents.mapNotNull { doc ->
+            val expense = doc.toObject(Expense::class.java)
+            expense?.id = doc.id // Aquí asignamos el id del documento
+            expense
+        }
         expenses.value = expensesList
     }
 
 
-    //Agregar gastos
+    //AGREGAR GASTOS
     fun addExpense(expense: Expense, onComplete: (Boolean) -> Unit) {
         db.collection("expenses").add(expense)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
     }
 
-    //Modificar gasto
-
+    //MODIFICAR GASTO
     fun updateExpenseFields(
         expenseId: String,
         fieldsToUpdate: Map<String, Any>,
         onComplete: (Boolean) -> Unit
     ) {
-        FirebaseFirestore.getInstance()
-            .collection("expenses")
-            .document(expenseId)
-            .update(fieldsToUpdate)
-            .addOnSuccessListener {
-                onComplete(true)
-            }
-            .addOnFailureListener {
-                onComplete(false)
-            }
 
+        try {
+            FirebaseFirestore.getInstance()
+                .collection("expenses")
+                .document(expenseId)
+                .update(fieldsToUpdate)
+                .addOnSuccessListener {
+                    onComplete(true)
+                }
+                .addOnFailureListener {
+                    onComplete(false)
+                }
+
+
+        }catch (e: Exception){
+            Log.e("Firestore", "Excepción inesperada al actualizar gasto", e)
+            onComplete(false)
+        }
 
     }
-
-
 }

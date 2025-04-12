@@ -8,9 +8,15 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.app_jdp_gestion_gastos.data.repository.IncomeRepository
+import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.databinding.DialogEditTransactionBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModelFactory
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModel
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModelFactory
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -144,11 +150,23 @@ class EditTransactionDialog : DialogFragment() {
 
             //Actializacion fecha y hora
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val dateParsed = dateFormat.parse(binding.etDate.text.toString())
+            val dateParsed = try {
+                dateFormat.parse(binding.etDate.text.toString())
+            } catch (e: Exception) {
+                null
+            }
             if (dateParsed != null && dateParsed.time != originalDateMillis) {
                 updatedFields["date"] =
                     com.google.firebase.Timestamp(dateParsed)
             }
+            if (dateParsed == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "La fecha introducida no es válida",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
 
             //Si no hay cambios que guardar
             if (updatedFields.isEmpty()) {
@@ -156,37 +174,93 @@ class EditTransactionDialog : DialogFragment() {
                     .show()
                 return@setOnClickListener
             }
+            //Verificacion de campos actualizados.
+            Toast.makeText(
+                requireContext(),
+                "Campos actualizados: ${updatedFields.keys.joinToString()}",
+                Toast.LENGTH_SHORT
+            ).show()
 
             //Enviamos los datos al ViewModel
-            val expenseId = args.getString("transactionId") ?: return@setOnClickListener
-            val factory = ExpenseViewModelFactory(com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository())
-            val viewModel = ViewModelProvider(this, factory)[ExpenseViewModel::class.java]
+            val transactionId = args.getString("transactionId")
+            if (transactionId.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "ID de transacción inválido", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+            val isIncome = args.getBoolean("isIncome")
+
+            if (isIncome) {
+                val incomeFactory = IncomeViewModelFactory(IncomeRepository())
+                val incomeViewModel = ViewModelProvider(requireActivity(), incomeFactory)[IncomeViewModel::class.java]
 
 
-            viewModel.updateExpenseFields(expenseId, updatedFields) { success ->
-                if (success) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Gasto actualizado correctamente",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al actualizar el gasto",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                incomeViewModel.updateIncomeFields(transactionId, updatedFields) { success ->
+                    if (success) {
+                        //Actualizar lista de ingresos desde el ViewModel
+                        val parentViewModel =
+                            ViewModelProvider(requireActivity())[TransactionsViewModel::class.java]
+                        parentViewModel.fetchIncomes()
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Ingreso actualizado con exito",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        //Cierre del dialigo
+                        dismiss()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al actualizar el ingreso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-                dismiss()
+
+            } else {
+                val expenseFactory =
+                    ExpenseViewModelFactory(com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository())
+                val expenseViewModel =
+                    ViewModelProvider(requireActivity(), expenseFactory)[ExpenseViewModel::class.java]
+
+                expenseViewModel.updateExpenseFields(transactionId, updatedFields) { sucess ->
+                    if (sucess) {
+                        //Actualizar lista de gastos desde el ViewModel
+                        val factory = TransactionsViewModelFactory(TransactionsRepository())
+
+                        val parentViewModel =
+                            ViewModelProvider(requireActivity(), factory)[TransactionsViewModel::class.java]
+                        parentViewModel.fetchExpenses()
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Gasto actualizado con exito",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        //Cierre del dialogo
+                        dismiss()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al actualizar el gasto",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
             }
         }
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
     }
 }
+
+
+
 
 

@@ -21,16 +21,21 @@ class IncomeViewModel(private val incomeRepository: IncomeRepository) : ViewMode
         }
     }
 
-    //Modificar ingreso
-    // TODO
-
-
-
-
     fun fetchIncomes(userId: String) {
         viewModelScope.launch {
             val incomesList = incomeRepository.getIncomesByUser(userId)
             _incomes.value = incomesList // Asegurar que los datos se actualizan
         }
     }
+
+    //Modificar ingreso
+    fun updateIncomeFields(
+        incomeId: String,
+        fieldsToUpdate: Map<String, Any>,
+        onComplete: (Boolean) -> Unit
+    ) {
+        // Llamada al metodo del repositorio para la actualizacion de datos.
+        incomeRepository.updateIncomeFields(incomeId, fieldsToUpdate, onComplete)
+    }
+
 }

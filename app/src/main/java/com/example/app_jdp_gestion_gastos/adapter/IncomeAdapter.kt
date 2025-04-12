@@ -10,14 +10,16 @@ import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Income
 import com.example.app_jdp_gestion_gastos.databinding.ItemTransactionBinding
 
-class IncomeAdapter(private val onTransactionSelected: (Income) -> Unit) :
-    ListAdapter<Income, IncomeAdapter.IncomeViewHolder>(IncomeDiffCallback()) {
+class IncomeAdapter(
+    private val onTransactionSelected: (Income) -> Unit,
+    private val  onRequestDelete:(Income) -> Unit
+):ListAdapter<Income, IncomeAdapter.IncomeViewHolder>(IncomeDiffCallback()) {
 
     private var selectedPosition: Int = -1 // Para almacenar la posición del ítem seleccionado
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IncomeViewHolder {
         val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return IncomeViewHolder(binding, this) // Pasar el adaptador al ViewHolder
+        return IncomeViewHolder(binding, this, onRequestDelete ) // Pasar el adaptador al ViewHolder
     }
 
     override fun onBindViewHolder(holder: IncomeViewHolder, position: Int) {
@@ -34,8 +36,10 @@ class IncomeAdapter(private val onTransactionSelected: (Income) -> Unit) :
 
     class IncomeViewHolder(
         private val binding: ItemTransactionBinding,
-        private val adapter: IncomeAdapter // Recibir el adaptador
+        private val adapter: IncomeAdapter,
+        private val onRequestDelete: (Income) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
+
 
         fun bind(income: Income, onTransactionSelected: (Income) -> Unit, position: Int, selectedPosition: Int) {
             binding.tvDescription.text = income.name
@@ -53,10 +57,15 @@ class IncomeAdapter(private val onTransactionSelected: (Income) -> Unit) :
                 binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white)) // Fondo por defecto
             }
 
+
+            //Pulsacion corta ->Editar ingreso
             itemView.setOnClickListener {
                 onTransactionSelected(income)
-                // Cambiar el estado de selección usando el adaptador directamente
-                adapter.setSelectedPosition(position)
+            }
+            //Pulsacion larga-> Eliminar ingreso
+            itemView.setOnLongClickListener {
+                onRequestDelete(income)
+                true
             }
         }
     }
