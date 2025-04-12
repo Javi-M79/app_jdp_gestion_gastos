@@ -1,5 +1,6 @@
 package com.example.app_jdp_gestion_gastos.data.repository
 
+import android.util.Log
 import com.example.app_jdp_gestion_gastos.data.model.Income
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -26,22 +27,28 @@ class IncomeRepository {
         onComplete: (Boolean) -> Unit
     ) {
 
-        //Conexion con firebase
-        FirebaseFirestore.getInstance()
-            //Acceso a la coleccion
-            .collection("incomes")
-            //Acceso al documento por ID
-            .document(incomeId)
-            //Aplicar solo los campos modificados
-            .update(fieldsToUpdate)
-            //Exito
-            .addOnSuccessListener {
-                onComplete(true)
-            }
-            //Fallo
-            .addOnFailureListener {
-                onComplete(false)
-            }
+        try {
+            //Conexion con firebase
+            FirebaseFirestore.getInstance()
+                //Acceso a la coleccion
+                .collection("incomes")
+                //Acceso al documento por ID
+                .document(incomeId)
+                //Aplicar solo los campos modificados
+                .update(fieldsToUpdate)
+                //Exito
+                .addOnSuccessListener {
+                    onComplete(true)
+                }
+                //Fallo
+                .addOnFailureListener {
+                    onComplete(false)
+                }
+
+        }catch (e: Exception){
+            Log.e("Firestore:", "Excepcion al actualizar el ingreso", e)
+            onComplete(false)
+        }
 
 
     }
