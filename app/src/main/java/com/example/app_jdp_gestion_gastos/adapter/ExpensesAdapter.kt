@@ -10,14 +10,18 @@ import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.databinding.ItemTransactionBinding
 
-class ExpenseAdapter(private val onTransactionSelected: (Expense) -> Unit) :
+class ExpenseAdapter(
+    private val onTransactionSelected: (Expense) -> Unit,
+    private val onRequestDelete: (Expense) -> Unit
+) :
     ListAdapter<Expense, ExpenseAdapter.ExpenseViewHolder>(ExpenseDiffCallback()) {
 
     private var selectedPosition: Int = -1 // Para almacenar la posición del ítem seleccionado
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpenseViewHolder {
-        val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ExpenseViewHolder(binding, this) // Pasar el adaptador al ViewHolder
+        val binding =
+            ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ExpenseViewHolder(binding, this, onRequestDelete) // Pasar el adaptador al ViewHolder
     }
 
     override fun onBindViewHolder(holder: ExpenseViewHolder, position: Int) {
@@ -34,10 +38,16 @@ class ExpenseAdapter(private val onTransactionSelected: (Expense) -> Unit) :
 
     class ExpenseViewHolder(
         private val binding: ItemTransactionBinding,
-        private val adapter: ExpenseAdapter // Recibir el adaptador
+        private val adapter: ExpenseAdapter,// Recibir el adaptador
+        private val onRequestDelete: (Expense) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(expense: Expense, onTransactionSelected: (Expense) -> Unit, position: Int, selectedPosition: Int) {
+        fun bind(
+            expense: Expense,
+            onTransactionSelected: (Expense) -> Unit,
+            position: Int,
+            selectedPosition: Int
+        ) {
             binding.tvDescription.text = expense.name
             binding.tvAmount.text = "- ${"%.2f".format(expense.amount)} €"
             binding.tvDate.text = expense.date?.toDate().toString()
@@ -47,22 +57,40 @@ class ExpenseAdapter(private val onTransactionSelected: (Expense) -> Unit) :
 
             // Cambiar el fondo del item según si está seleccionado
             if (position == selectedPosition) {
-                binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.gray)) // Color cuando
-            // se selecciona
+                binding.root.setBackgroundColor(
+                    ContextCompat.getColor(
+                        binding.root.context,
+                        R.color.gray
+                    )
+                ) // Color cuando
+                // se selecciona
             } else {
-                binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white)) // Fondo por defecto
+                binding.root.setBackgroundColor(
+                    ContextCompat.getColor(
+                        binding.root.context,
+                        R.color.white
+                    )
+                ) // Fondo por defecto
             }
 
+            //Click corto. Lanza el dialogo para editar el gasto.
             itemView.setOnClickListener {
                 onTransactionSelected(expense)
-                // Cambiar el estado de selección usando el adaptador directamente
-                adapter.setSelectedPosition(position)
             }
+
+            itemView.setOnLongClickListener {
+                onRequestDelete(expense)
+                true
+            }
+
         }
     }
 
     class ExpenseDiffCallback : DiffUtil.ItemCallback<Expense>() {
-        override fun areItemsTheSame(oldItem: Expense, newItem: Expense): Boolean = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Expense, newItem: Expense): Boolean = oldItem == newItem
+        override fun areItemsTheSame(oldItem: Expense, newItem: Expense): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Expense, newItem: Expense): Boolean =
+            oldItem == newItem
     }
 }
