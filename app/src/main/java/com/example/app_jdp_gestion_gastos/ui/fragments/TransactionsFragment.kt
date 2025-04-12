@@ -303,7 +303,6 @@ class TransactionsFragment : Fragment() {
     }
 
     //DIALOGO PARA ELIMINAR INGRESOS
-
     private fun showDeleteIncomeDialog(income: Income) {
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar ingreso")
@@ -323,7 +322,7 @@ class TransactionsFragment : Fragment() {
     }
 
 
-
+//ELIMINAR TRANSACCION
     private fun deleteTransaction(transactionId: String) {
         Log.d("TransactionsFragment", "Intentando eliminar transacción con ID: $transactionId")
         transactionsViewModel.deleteTransaction(transactionId) { success ->
