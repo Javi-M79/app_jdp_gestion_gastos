@@ -20,8 +20,6 @@ class IncomeRepository {
     }
 
     // Modificar ingresos en Firestore
-
-
     fun updateIncomeFields(
         incomeId: String,
         fieldsToUpdate: Map<String, Any>,
@@ -33,7 +31,7 @@ class IncomeRepository {
             //Acceso a la coleccion
             .collection("incomes")
             //Acceso al documento por ID
-            .document("incomeId")
+            .document(incomeId)
             //Aplicar solo los campos modificados
             .update(fieldsToUpdate)
             //Exito
@@ -53,11 +51,14 @@ class IncomeRepository {
     suspend fun getIncomesByUser(userId: String): List<Income> {
         return try {
             val snapshot = incomeCollection.whereEqualTo("userId", userId).get().await()
-            snapshot.toObjects(Income::class.java)
+            snapshot.documents.mapNotNull { doc ->
+                val income = doc.toObject(Income::class.java)
+                income?.id = doc.id  //Se asigna el ID del documento Firestore
+                income
+            }
         } catch (e: Exception) {
             emptyList()
         }
     }
-
 
 }

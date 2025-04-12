@@ -18,7 +18,11 @@ class ExpenseRepository {
             .whereEqualTo("userId", userId)
             .get()
             .await()
-        val expensesList = snapshot.toObjects(Expense::class.java)
+        val expensesList = snapshot.documents.mapNotNull { doc ->
+            val expense = doc.toObject(Expense::class.java)
+            expense?.id = doc.id // Aquí asignamos el id del documento
+            expense
+        }
         expenses.value = expensesList
     }
 
@@ -50,6 +54,4 @@ class ExpenseRepository {
 
 
     }
-
-
 }
