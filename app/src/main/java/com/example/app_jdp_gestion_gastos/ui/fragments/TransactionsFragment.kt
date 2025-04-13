@@ -158,13 +158,13 @@ class TransactionsFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            transactionsViewModel.incomes.collect { incomes ->
+            transactionsViewModel.incomes.observe(viewLifecycleOwner) { incomes ->
                 incomeAdapter.submitList(incomes)
             }
         }
 
         lifecycleScope.launch {
-            transactionsViewModel.expenses.collect { expenses ->
+            transactionsViewModel.expenses.observe(viewLifecycleOwner) { expenses ->
                 expenseAdapter.submitList(expenses)
             }
         }
