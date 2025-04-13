@@ -72,16 +72,28 @@ class ExpenseAdapter(
                     )
                 ) // Fondo por defecto
             }
+            //Manejar popup menu para editar o eliminar gastos.
+         binding.btnOptions.setOnClickListener { view->
+             val popup = android.widget.PopupMenu(view.context, view)
+             popup.menuInflater.inflate(R.menu.menu_transaction_item, popup.menu)
 
-            //Click corto. Lanza el dialogo para editar el gasto.
-            itemView.setOnClickListener {
-                onTransactionSelected(expense)
-            }
+             popup.setOnMenuItemClickListener { menuItem ->
+                 when(menuItem.itemId){
 
-            itemView.setOnLongClickListener {
-                onRequestDelete(expense)
-                true
-            }
+                     R.id.action_edit ->{
+                         onTransactionSelected(expense) // Editar
+                         true
+                     }
+                     R.id.action_delete -> {
+                         onRequestDelete(expense) //  Eliminar
+                         true
+                     }
+                     else -> false
+
+                 }
+             }
+             popup.show()
+         }
 
         }
     }

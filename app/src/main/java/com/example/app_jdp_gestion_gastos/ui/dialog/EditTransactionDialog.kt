@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository
 import com.example.app_jdp_gestion_gastos.data.repository.IncomeRepository
 import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.databinding.DialogEditTransactionBinding
@@ -192,15 +193,18 @@ class EditTransactionDialog : DialogFragment() {
 
             if (isIncome) {
                 val incomeFactory = IncomeViewModelFactory(IncomeRepository())
-                val incomeViewModel = ViewModelProvider(requireActivity(), incomeFactory)[IncomeViewModel::class.java]
+                val incomeViewModel =
+                    ViewModelProvider(requireActivity(), incomeFactory)[IncomeViewModel::class.java]
 
 
                 incomeViewModel.updateIncomeFields(transactionId, updatedFields) { success ->
                     if (success) {
                         //Actualizar lista de ingresos desde el ViewModel
-                        val parentViewModel =
-                            ViewModelProvider(requireActivity())[TransactionsViewModel::class.java]
-                        parentViewModel.fetchIncomes()
+                        val factory = TransactionsViewModelFactory(TransactionsRepository())
+                        val incomeViewModel = ViewModelProvider(
+                            requireActivity(),
+                            factory
+                        )[TransactionsViewModel::class.java]
 
                         Toast.makeText(
                             requireContext(),
@@ -220,17 +224,22 @@ class EditTransactionDialog : DialogFragment() {
 
             } else {
                 val expenseFactory =
-                    ExpenseViewModelFactory(com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository())
+                    ExpenseViewModelFactory(ExpenseRepository())
                 val expenseViewModel =
-                    ViewModelProvider(requireActivity(), expenseFactory)[ExpenseViewModel::class.java]
+                    ViewModelProvider(
+                        requireActivity(),
+                        expenseFactory
+                    )[ExpenseViewModel::class.java]
 
                 expenseViewModel.updateExpenseFields(transactionId, updatedFields) { sucess ->
                     if (sucess) {
                         //Actualizar lista de gastos desde el ViewModel
                         val factory = TransactionsViewModelFactory(TransactionsRepository())
-
                         val parentViewModel =
-                            ViewModelProvider(requireActivity(), factory)[TransactionsViewModel::class.java]
+                            ViewModelProvider(
+                                requireActivity(),
+                                factory
+                            )[TransactionsViewModel::class.java]
                         parentViewModel.fetchExpenses()
 
                         Toast.makeText(

@@ -57,16 +57,29 @@ class IncomeAdapter(
                 binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white)) // Fondo por defecto
             }
 
+            binding.btnOptions.setOnClickListener { view ->
+                val popup = android.widget.PopupMenu(view.context, view)
+                popup.menuInflater.inflate (R.menu.menu_transaction_item, popup.menu)
 
-            //Pulsacion corta ->Editar ingreso
-            itemView.setOnClickListener {
-                onTransactionSelected(income)
+                popup.setOnMenuItemClickListener { menuItem ->
+                    when(menuItem.itemId){
+                        //Editar
+                        R.id.action_edit -> {
+                            onTransactionSelected(income)
+                            true
+                        }
+                        //Eliminar
+                        R.id.action_delete ->{
+                            onRequestDelete(income)
+                            true
+                        }
+                        else -> false
+
+                    }
+                }
+                popup.show()
             }
-            //Pulsacion larga-> Eliminar ingreso
-            itemView.setOnLongClickListener {
-                onRequestDelete(income)
-                true
-            }
+
         }
     }
 
