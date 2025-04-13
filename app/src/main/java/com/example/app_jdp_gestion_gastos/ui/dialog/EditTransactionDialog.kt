@@ -201,10 +201,12 @@ class EditTransactionDialog : DialogFragment() {
                     if (success) {
                         //Actualizar lista de ingresos desde el ViewModel
                         val factory = TransactionsViewModelFactory(TransactionsRepository())
-                        val incomeViewModel = ViewModelProvider(
-                            requireActivity(),
-                            factory
-                        )[TransactionsViewModel::class.java]
+                        val parentViewModel =
+                            ViewModelProvider(
+                                requireActivity(),
+                                factory
+                            )[TransactionsViewModel::class.java]
+                        parentViewModel.fetchIncomes()
 
                         Toast.makeText(
                             requireContext(),
