@@ -6,22 +6,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import com.example.app_jdp_gestion_gastos.data.repository.ExpenseRepository
 import com.example.app_jdp_gestion_gastos.data.repository.IncomeRepository
-import com.example.app_jdp_gestion_gastos.data.repository.TransactionsRepository
 import com.example.app_jdp_gestion_gastos.databinding.DialogEditTransactionBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.ExpenseViewModelFactory
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.IncomeViewModelFactory
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
-import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
 
 class EditTransactionDialog : DialogFragment() {
 
@@ -199,20 +199,10 @@ class EditTransactionDialog : DialogFragment() {
 
                 incomeViewModel.updateIncomeFields(transactionId, updatedFields) { success ->
                     if (success) {
-                        //Actualizar lista de ingresos desde el ViewModel
-                        val factory = TransactionsViewModelFactory(TransactionsRepository())
-                        val parentViewModel =
-                            ViewModelProvider(
-                                requireActivity(),
-                                factory
-                            )[TransactionsViewModel::class.java]
-                        parentViewModel.fetchIncomes()
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Ingreso actualizado con exito",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        setFragmentResult("transaction_updated", bundleOf())
+                        dismiss()
+
                         //Cierre del dialigo
                         dismiss()
                     } else {
@@ -235,21 +225,8 @@ class EditTransactionDialog : DialogFragment() {
 
                 expenseViewModel.updateExpenseFields(transactionId, updatedFields) { sucess ->
                     if (sucess) {
-                        //Actualizar lista de gastos desde el ViewModel
-                        val factory = TransactionsViewModelFactory(TransactionsRepository())
-                        val parentViewModel =
-                            ViewModelProvider(
-                                requireActivity(),
-                                factory
-                            )[TransactionsViewModel::class.java]
-                        parentViewModel.fetchExpenses()
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Gasto actualizado con exito",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        //Cierre del dialogo
+                        setFragmentResult("transaction_updated", bundleOf())
                         dismiss()
                     } else {
                         Toast.makeText(
