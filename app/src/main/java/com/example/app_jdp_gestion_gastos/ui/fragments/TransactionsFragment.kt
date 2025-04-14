@@ -11,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.Toast
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -128,6 +129,19 @@ class TransactionsFragment : Fragment() {
             showDatePickerDialog()
         }
 
+
+        setFragmentResultListener("transaction_updated") { _, _ ->
+            val tipo = binding.spinnerTransactionType.selectedItem.toString().lowercase()
+            if (tipo == "gasto") {
+                binding.rvTransactions.adapter = expenseAdapter
+                transactionsViewModel.fetchExpenses()
+            } else {
+                binding.rvTransactions.adapter = incomeAdapter
+                transactionsViewModel.fetchIncomes()
+            }
+        }
+
+
         binding.spinnerTransactionType.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -157,17 +171,24 @@ class TransactionsFragment : Fragment() {
             ).show()
         }
 
-        lifecycleScope.launch {
             transactionsViewModel.incomes.observe(viewLifecycleOwner) { incomes ->
-                incomeAdapter.submitList(incomes)
+                val type = binding.spinnerTransactionType.selectedItem.toString().lowercase()
+                if(type == "ingreso"){
+                    binding.rvTransactions.adapter = incomeAdapter
+                    incomeAdapter.submitList(incomes.toList())
+                    incomeAdapter.notifyDataSetChanged()
+                }
             }
-        }
 
-        lifecycleScope.launch {
             transactionsViewModel.expenses.observe(viewLifecycleOwner) { expenses ->
-                expenseAdapter.submitList(expenses)
+                val type = binding.spinnerTransactionType.selectedItem.toString().lowercase()
+                if (type == "gasto") {
+                    binding.rvTransactions.adapter = expenseAdapter
+                    expenseAdapter.submitList(expenses.toList())
+                    expenseAdapter.notifyDataSetChanged()
+                }
             }
-        }
+
         //Recarga los datos si hay actualizaciones
         transactionsViewModel.fetchExpenses()
     }
