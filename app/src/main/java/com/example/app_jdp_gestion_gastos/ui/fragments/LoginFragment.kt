@@ -93,11 +93,21 @@ class LoginFragment : Fragment() {
         val fondo = binding.ivFondo
 
         binding.etMail.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+            fondo.startAnimation(
+                createScaleAnimation(
+                    if (hasFocus) 1.0f else 1.2f,
+                    if (hasFocus) 1.2f else 1.0f
+                )
+            )
         }
 
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
-            fondo.startAnimation(createScaleAnimation(if (hasFocus) 1.0f else 1.2f, if (hasFocus) 1.2f else 1.0f))
+            fondo.startAnimation(
+                createScaleAnimation(
+                    if (hasFocus) 1.0f else 1.2f,
+                    if (hasFocus) 1.2f else 1.0f
+                )
+            )
         }
     }
 
@@ -120,61 +130,7 @@ class LoginFragment : Fragment() {
     }
 }
 
-/*EVENTOS FOCUS MAIL Y PASWORD
-etMail.setOnFocusChangeListener { _, hasFocus ->
-    if (hasFocus) {
-        // Zoom In
-        val zoomIn = ScaleAnimation(
-            1.0f, 1.2f, // Escala en X
-            1.0f, 1.2f, // Escala en Y
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 300 // Duración en milisegundos
-            fillAfter = true // mantien el estado final
-        }
-        fondoImagen.startAnimation(zoomIn)
-    } else {
-        // Zoom Out
-        val zoomOut = ScaleAnimation(
-            1.2f, 1.0f,
-            1.2f, 1.0f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 300
-            fillAfter = true
-        }
-        fondoImagen.startAnimation(zoomOut)
-    }
-}
-etPassword.setOnFocusChangeListener { _, hasFocus ->
-    if (hasFocus) {
-        // Zoom In
-        val zoomIn = ScaleAnimation(
-            1.0f, 1.2f, // Escala en X
-            1.0f, 1.2f, // Escala en Y
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 300 // Duración en milisegundos
-            fillAfter = true // mantien el estado final
-        }
-        fondoImagen.startAnimation(zoomIn)
-    } else {
-        // Zoom Out
-        val zoomOut = ScaleAnimation(
-            1.2f, 1.0f,
-            1.2f, 1.0f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
-            ScaleAnimation.RELATIVE_TO_SELF, 0.5f
-        ).apply {
-            duration = 300
-            fillAfter = true
-        }
-        fondoImagen.startAnimation(zoomOut)
-    }
-}*/
+
 
 
 
