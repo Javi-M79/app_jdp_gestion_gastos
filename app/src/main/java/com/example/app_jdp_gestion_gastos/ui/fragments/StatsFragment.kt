@@ -19,6 +19,7 @@ import com.example.app_jdp_gestion_gastos.data.repository.StatsRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModelFactory
+import com.example.app_jdp_gestion_gastos.ui.dialog.StatsDialog
 import java.util.Calendar
 
 class StatsFragment : Fragment() {
@@ -68,7 +69,6 @@ class StatsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-
         // Observar el total de ingresos
         statsViewModel.totalIngresos.observe(viewLifecycleOwner, Observer { totalIngresos ->
             binding.tvTotalIngresos.text = "Total de Ingresos: ${"%.2f".format(totalIngresos)} €"
@@ -79,7 +79,7 @@ class StatsFragment : Fragment() {
             binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(totalGastos)} €"
         })
 
-        //Mostrar total disponible
+        // Mostrar total disponible
         statsViewModel.promedioGastos.observe(viewLifecycleOwner, Observer { promedioGastos ->
             val numeroFormateado = if (promedioGastos < 0) {
                 "-%.2f €".format(-promedioGastos)
@@ -108,7 +108,6 @@ class StatsFragment : Fragment() {
             binding.tvPromedioGastos.text = spannable
         })
 
-
         // Observar el número de transacciones de ingresos
         statsViewModel.numTransaccionesIngresos.observe(
             viewLifecycleOwner,
@@ -123,6 +122,19 @@ class StatsFragment : Fragment() {
             Observer { numTransaccionesGastos ->
                 binding.tvNumTransaccionesGastos.text = "Número de Gastos: $numTransaccionesGastos"
             })
+
+        // Acción al pulsar en el total de ingresos
+        binding.tvTotalIngresos.setOnClickListener {
+            statsViewModel.getIncomesForMonth { incomes ->
+                showStatsDialog("Ingresos", incomes)
+            }
+        }
+
+        binding.tvTotalGastos.setOnClickListener {
+            statsViewModel.getExpensesForMonth { expenses ->
+                showStatsDialog("Gastos", expenses)
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -145,5 +157,10 @@ class StatsFragment : Fragment() {
                 view.animate().alpha(1f).setDuration(300).start()
             }.start()
         }
+    }
+
+    private fun showStatsDialog(title: String, items: List<String>) {
+        val dialog = StatsDialog.newInstance(title, items)
+        dialog.show(childFragmentManager, "statsDialog")
     }
 }
