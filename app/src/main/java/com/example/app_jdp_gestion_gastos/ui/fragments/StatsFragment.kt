@@ -7,14 +7,19 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.repository.StatsRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModelFactory
+import java.util.Calendar
 
 class StatsFragment : Fragment() {
 
@@ -39,6 +44,30 @@ class StatsFragment : Fragment() {
 
         // Cargar las estadísticas
         statsViewModel.loadStats()
+
+        val spinner: Spinner = binding.spinnerMonthFilter
+        val months = resources.getStringArray(com.example.app_jdp_gestion_gastos.R.array.months_array)
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.item_spinner,
+            months
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        binding.spinnerMonthFilter.setSelection(Calendar.getInstance().get(Calendar.MONTH) + 1)
+        binding.spinnerMonthFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                animateViews()
+                if (position == 0) {
+                    statsViewModel.loadStatsForMonth(null) // Todo el año
+                } else {
+                    statsViewModel.loadStatsForMonth(position - 1) // Mes específico
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
 
         // Observar el total de ingresos
         statsViewModel.totalIngresos.observe(viewLifecycleOwner, Observer { totalIngresos ->
@@ -99,5 +128,22 @@ class StatsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun animateViews() {
+        val views = listOf(
+            binding.totalIngresosContainer,
+            binding.totalGastosContainer,
+            binding.promedioGastosContainer,
+            binding.numIngresosContainer,
+            binding.numGastosContainer
+        )
+
+        views.forEach { view ->
+            view.animate().alpha(0f).setDuration(150).withEndAction {
+                view.alpha = 0f
+                view.animate().alpha(1f).setDuration(300).start()
+            }.start()
+        }
     }
 }
