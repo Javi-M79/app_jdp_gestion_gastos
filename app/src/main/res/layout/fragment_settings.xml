@@ -15,7 +15,7 @@
         android:textSize="35sp"
         android:layout_marginTop="50dp"
         android:textStyle="bold"
-        android:textColor="@color/primary_text"
+        android:textColor="?attr/colorOnBackground"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="60dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTituloAjustes">
 
@@ -76,44 +76,6 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-    <!-- Presupuesto mensual -->
-        <LinearLayout
-            android:id="@+id/lyPresupuesto"
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_marginTop="20dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lyOscuro">
-
-            <TextView
-                android:id="@+id/tvPrespuesto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:text="Presupuesto Mensual:"
-                android:textAlignment="center"
-                android:textColor="?attr/colorOnBackground"
-                android:textSize="15sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/etPresupuesto"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <EditText
-                android:id="@+id/etPresupuesto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:background="@drawable/edittext_background"
-                android:hint="Ingresa tu presupuesto"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvPrespuesto"/>
-        </LinearLayout>
-
     <!-- Sección de notificaciones -->
     <LinearLayout
         android:id="@+id/lyNotificaciones"
@@ -124,7 +86,7 @@
         android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lyPresupuesto">
+        app:layout_constraintTop_toBottomOf="@id/lyOscuro">
 
         <TextView
             android:id="@+id/tvNotificaciones"

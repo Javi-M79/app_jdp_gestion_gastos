@@ -97,26 +97,4 @@ class MainActivity : AppCompatActivity(), LogoutDialogo.onDialogoLogOutListener 
         auth.signOut() // Cerrar sesión en Firebase
         navController.navigate(R.id.loginFragment) // Navegar al loginFragment
     }
-
 }
-
-
-/* // TODO: VARIABLES
-           // Animación del titulo
-           val titulo = findViewById<TextView>(R.id.tvTitulo)
-           val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-           titulo.startAnimation(fadeIn)
-           val etMail = findViewById<EditText>(R.id.etMail)
-           val etPassword = findViewById<EditText>(R.id.etPassword)
-           val btnLogin = findViewById<Button>(R.id.btnLogin)
-           val tvOlvidarPassword = findViewById<TextView>(R.id.tvOlvidarContraseña)
-           val fondoImagen = findViewById<ImageView>(R.id.ivFondo)
-           val tvCrearCuenta = findViewById<TextView>(R.id.tvCrearCuenta)*/
-
-// ACCESO PARA TEST
-/*if (email == "admin" && password == "admin") {
-    Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-    val intent = Intent(applicationContext, HomeActivity::class.java)
-    intent.putExtra("usuario", email)
-    startActivity(intent)
-}*/
