@@ -3,13 +3,11 @@ package com.example.app_jdp_gestion_gastos.ui.fragments
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Toast
-
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -26,7 +24,6 @@ import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.TransactionsViewModelFactory
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -57,177 +54,121 @@ class TransactionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        incomeAdapter = IncomeAdapter(
-            onTransactionSelected = { income ->
-                val id = income.id
-                if (id.isNullOrBlank()) {
-                    Toast.makeText(requireContext(), "Error: ingreso sin ID", Toast.LENGTH_SHORT).show()
-                    return@IncomeAdapter
-                }
+        setupAdapters()
+        setupUI()
+        observeViewModel()
 
-                val dialog = EditTransactionDialog.newInstance(
-                    transactionId = id,
-                    name = income.name,
-                    amount = income.amount,
-                    category = income.category,
-                    isRecurring = income.isRecurring,
-                    recurrence = income.recurrence,
-                    date = income.date?.toDate()?.time ?: System.currentTimeMillis(),
-                    isIncome = true
-                )
-                dialog.show(parentFragmentManager, "EditIncomeDialog")
-            },
-
-            onRequestDelete = { income ->
-                showDeleteIncomeDialog(income)
-            }
-        )
-
-
-
-        expenseAdapter = ExpenseAdapter(
-            onTransactionSelected = { expense ->
-                val id = expense.id
-                if (id.isNullOrBlank()) {
-                    Toast.makeText(requireContext(), "Error: gasto sin ID", Toast.LENGTH_SHORT)
-                        .show()
-                    return@ExpenseAdapter
-                }
-
-                val dialog = EditTransactionDialog.newInstance(
-                    transactionId = id,
-                    name = expense.name,
-                    amount = expense.amount,
-                    category = expense.category,
-                    isRecurring = expense.isRecurring,
-                    recurrence = expense.recurrence,
-                    date = expense.date?.toDate()?.time ?: System.currentTimeMillis(),
-                    isIncome = false
-                )
-                dialog.show(parentFragmentManager, "EditExpenseDialog")
-            },
-
-            onRequestDelete = { expense ->
-                showDeleteExpenseDialog(expense)
-            }
-        )
-
-
-        binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvTransactions.adapter = incomeAdapter
-
-        binding.btnAddTransaction.setOnClickListener {
-            val transactionType = binding.spinnerTransactionType.selectedItem.toString()
-            if (transactionType == "ingreso") {
-                saveIncomeToFirebase()
-            } else {
-                saveExpenseToFirebase()
-            }
-        }
-
-        binding.etDate.setOnClickListener {
-            showDatePickerDialog()
-        }
-
-
-        setFragmentResultListener("transaction_updated") { _, _ ->
-            val tipo = binding.spinnerTransactionType.selectedItem.toString().lowercase()
-            if (tipo == "gasto") {
-                binding.rvTransactions.adapter = expenseAdapter
-                transactionsViewModel.fetchExpenses()
-            } else {
-                binding.rvTransactions.adapter = incomeAdapter
-                transactionsViewModel.fetchIncomes()
-            }
-        }
-
-
-        binding.spinnerTransactionType.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    val transactionType = binding.spinnerTransactionType.selectedItem.toString()
-                    if (transactionType == "ingreso") {
-                        binding.rvTransactions.adapter = incomeAdapter
-                    } else {
-                        binding.rvTransactions.adapter = expenseAdapter
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-
-        binding.btnDeleteTransaction.setOnClickListener {
-            selectedTransactionId?.let {
-                deleteTransaction(it)
-            } ?: Toast.makeText(
-                requireContext(),
-                "Selecciona una transacción para eliminar",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-            transactionsViewModel.incomes.observe(viewLifecycleOwner) { incomes ->
-                val type = binding.spinnerTransactionType.selectedItem.toString().lowercase()
-                if(type == "ingreso"){
-                    binding.rvTransactions.adapter = incomeAdapter
-                    incomeAdapter.submitList(incomes.toList())
-                    incomeAdapter.notifyDataSetChanged()
-                }
-            }
-
-            transactionsViewModel.expenses.observe(viewLifecycleOwner) { expenses ->
-                val type = binding.spinnerTransactionType.selectedItem.toString().lowercase()
-                if (type == "gasto") {
-                    binding.rvTransactions.adapter = expenseAdapter
-                    expenseAdapter.submitList(expenses.toList())
-                    expenseAdapter.notifyDataSetChanged()
-                }
-            }
-
-        //Recarga los datos si hay actualizaciones
-        transactionsViewModel.fetchExpenses()
+        fetchData()
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun setupAdapters() {
+        incomeAdapter = IncomeAdapter(
+            onTransactionSelected = { income -> openEditDialog(income, isIncome = true) },
+            onRequestDelete = { income -> showDeleteIncomeDialog(income) }
+        )
+
+        expenseAdapter = ExpenseAdapter(
+            onTransactionSelected = { expense -> openEditDialog(expense, isIncome = false) },
+            onRequestDelete = { expense -> showDeleteExpenseDialog(expense) }
+        )
+    }
+
+    private fun setupUI() {
+        binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvTransactions.adapter = incomeAdapter // Default
+
+        binding.btnAddTransaction.setOnClickListener {
+            val transactionType = binding.spinnerTransactionType.selectedItem.toString().lowercase()
+            if (transactionType == "ingreso") saveIncomeToFirebase()
+            else saveExpenseToFirebase()
+        }
+
+        binding.etDate.setOnClickListener { showDatePickerDialog() }
+
+        binding.spinnerTransactionType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateAdapterAndFetch()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        setFragmentResultListener("transaction_updated") { _, _ -> fetchData() }
+    }
+
+    private fun observeViewModel() {
+        transactionsViewModel.incomes.observe(viewLifecycleOwner) { incomes ->
+            if (binding.spinnerTransactionType.selectedItem.toString().lowercase() == "ingreso") {
+                incomeAdapter.submitList(incomes)
+            }
+        }
+
+        transactionsViewModel.expenses.observe(viewLifecycleOwner) { expenses ->
+            if (binding.spinnerTransactionType.selectedItem.toString().lowercase() == "gasto") {
+                expenseAdapter.submitList(expenses)
+            }
+        }
+    }
+
+    private fun fetchData() {
         transactionsViewModel.fetchIncomes()
         transactionsViewModel.fetchExpenses()
     }
 
+    private fun updateAdapterAndFetch() {
+        val type = binding.spinnerTransactionType.selectedItem.toString().lowercase()
+        if (type == "ingreso") {
+            binding.rvTransactions.adapter = incomeAdapter
+            transactionsViewModel.fetchIncomes()
+        } else {
+            binding.rvTransactions.adapter = expenseAdapter
+            transactionsViewModel.fetchExpenses()
+        }
+    }
+
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
+            calendar.set(year, month, dayOfMonth)
+            selectedDate = calendar.time
+            val formattedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(selectedDate!!)
+            binding.etDate.setText(formattedDate)
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+    }
 
-        val datePicker =
-            DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
-                selectedDate = selectedCalendar.time
-                val formattedDate =
-                    SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(selectedDate!!)
-                binding.etDate.setText(formattedDate)
-            }, year, month, day)
-
-        datePicker.show()
+    private fun openEditDialog(transaction: Any, isIncome: Boolean) {
+        val dialog = when (transaction) {
+            is Income -> EditTransactionDialog.newInstance(
+                transactionId = transaction.id ?: "",
+                name = transaction.name,
+                amount = transaction.amount,
+                category = transaction.category,
+                isRecurring = transaction.isRecurring,
+                recurrence = transaction.recurrence,
+                date = transaction.date?.toDate()?.time ?: System.currentTimeMillis(),
+                isIncome = true
+            )
+            is Expense -> EditTransactionDialog.newInstance(
+                transactionId = transaction.id ?: "",
+                name = transaction.name,
+                amount = transaction.amount,
+                category = transaction.category,
+                isRecurring = transaction.isRecurring,
+                recurrence = transaction.recurrence,
+                date = transaction.date?.toDate()?.time ?: System.currentTimeMillis(),
+                isIncome = false
+            )
+            else -> return
+        }
+        dialog.show(parentFragmentManager, "EditTransactionDialog")
     }
 
     private fun saveIncomeToFirebase() {
-        val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
+        val amountText = binding.etAmount.text.toString()
 
-        if (amountText.isBlank() || name.isBlank()) {
-            Toast.makeText(
-                requireContext(),
-                "Todos los campos son obligatorios",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (name.isBlank() || amountText.isBlank()) {
+            Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -251,26 +192,21 @@ class TransactionsFragment : Fragment() {
 
         transactionsViewModel.addIncome(income) { success ->
             if (success) {
-                Toast.makeText(requireContext(), "Ingreso guardado con éxito", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Ingreso guardado con éxito", Toast.LENGTH_SHORT).show()
                 transactionsViewModel.fetchIncomes()
+                clearInputFields() // <<<<<< Añadido aquí
             } else {
-                Toast.makeText(requireContext(), "Error al guardar ingreso", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Error al guardar ingreso", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun saveExpenseToFirebase() {
-        val amountText = binding.etAmount.text.toString()
         val name = binding.etDescription.text.toString()
+        val amountText = binding.etAmount.text.toString()
 
-        if (amountText.isBlank() || name.isBlank()) {
-            Toast.makeText(
-                requireContext(),
-                "Todos los campos son obligatorios",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (name.isBlank() || amountText.isBlank()) {
+            Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -294,80 +230,49 @@ class TransactionsFragment : Fragment() {
 
         transactionsViewModel.addExpense(expense) { success ->
             if (success) {
-                Toast.makeText(requireContext(), "Gasto guardado con éxito", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Gasto guardado con éxito", Toast.LENGTH_SHORT).show()
                 transactionsViewModel.fetchExpenses()
+                clearInputFields() // <<<<<< Añadido aquí
             } else {
-                Toast.makeText(requireContext(), "Error al guardar gasto", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Error al guardar gasto", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-//DIALOGO PARA ELIMINAR GASTOS
+    private fun deleteTransaction(transactionId: String) {
+        transactionsViewModel.deleteTransaction(transactionId) { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Transacción eliminada con éxito", Toast.LENGTH_SHORT).show()
+                fetchData()
+            } else {
+                Toast.makeText(requireContext(), "Error al eliminar la transacción", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun clearInputFields() {
+        binding.etDescription.text?.clear()
+        binding.etAmount.text?.clear()
+        binding.etDate.text?.clear()
+        selectedDate = null
+    }
+
     private fun showDeleteExpenseDialog(expense: Expense) {
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar gasto")
             .setMessage("¿Estás seguro de que deseas eliminar este gasto?")
-            .setPositiveButton("Sí") { _, _ ->
-                transactionsViewModel.deleteTransaction(expense.id ?: "") { success ->
-                    if (success) {
-                        Toast.makeText(requireContext(), "Gasto eliminado con éxito", Toast.LENGTH_SHORT).show()
-                        transactionsViewModel.fetchExpenses()
-                    } else {
-                        Toast.makeText(requireContext(), "Error al eliminar el gasto", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+            .setPositiveButton("Sí") { _, _ -> expense.id?.let { deleteTransaction(it) } }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    //DIALOGO PARA ELIMINAR INGRESOS
     private fun showDeleteIncomeDialog(income: Income) {
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar ingreso")
             .setMessage("¿Estás seguro de que deseas eliminar este ingreso?")
-            .setPositiveButton("Sí") { _, _ ->
-                transactionsViewModel.deleteTransaction(income.id ?: "") { success ->
-                    if (success) {
-                        Toast.makeText(requireContext(), "Ingreso eliminado con éxito", Toast.LENGTH_SHORT).show()
-                        transactionsViewModel.fetchIncomes()
-                    } else {
-                        Toast.makeText(requireContext(), "Error al eliminar ingreso", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+            .setPositiveButton("Sí") { _, _ -> income.id?.let { deleteTransaction(it) } }
             .setNegativeButton("Cancelar", null)
             .show()
-    }
-
-
-//ELIMINAR TRANSACCION
-    private fun deleteTransaction(transactionId: String) {
-        Log.d("TransactionsFragment", "Intentando eliminar transacción con ID: $transactionId")
-        transactionsViewModel.deleteTransaction(transactionId) { success ->
-            if (success) {
-                Toast.makeText(
-                    requireContext(),
-                    "Transacción eliminada con éxito",
-                    Toast.LENGTH_SHORT
-                ).show()
-                transactionsViewModel.fetchIncomes()
-                transactionsViewModel.fetchExpenses()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Error al eliminar la transacción",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun onTransactionSelected(transactionId: String) {
-        selectedTransactionId = transactionId
-        binding.btnDeleteTransaction.isEnabled = true
     }
 
     override fun onDestroyView() {
@@ -375,10 +280,3 @@ class TransactionsFragment : Fragment() {
         _binding = null
     }
 }
-
-
-
-
-
-
-

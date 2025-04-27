@@ -103,23 +103,6 @@
             app:iconGravity="textStart"
             app:iconPadding="12dp"
             style="@style/Widget.MaterialComponents.Button" />
-
-        <!-- Botón para eliminar transacción -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteTransaction"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Eliminar Transacción"
-            android:layout_marginTop="16dp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/colores_boton_eliminar"
-            app:icon="@drawable/papelera"
-            app:iconTint="@color/white"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp"
-            android:enabled="false"
-            style="@style/Widget.MaterialComponents.Button" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -58,17 +58,6 @@ class SettingsFragment : Fragment() {
             )
         }
 
-        // Presupuesto mensual
-        binding.btnSaveBudget.setOnClickListener {
-            val budget = binding.etPresupuesto.text.toString()
-            if (budget.isNotEmpty()) {
-                sharedPreferences.edit().putFloat("monthlyBudget", budget.toFloat()).apply()
-                Toast.makeText(requireContext(), "Presupuesto guardado", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Ingrese un presupuesto", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         // Restablecer datos
         binding.btnResetData.setOnClickListener {
             sharedPreferences.edit().remove("transactions").apply()
