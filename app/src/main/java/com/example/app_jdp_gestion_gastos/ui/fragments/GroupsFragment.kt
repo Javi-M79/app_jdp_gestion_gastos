@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.app_jdp_gestion_gastos.databinding.FragmentGroupsBinding
 import com.example.app_jdp_gestion_gastos.ui.adapters.GroupAdapter
 import com.example.app_jdp_gestion_gastos.ui.dialog.CreateGroupDialog
-import com.example.app_jdp_gestion_gastos.ui.dialog.GroupDetailsDialog
-import com.example.app_jdp_gestion_gastos.ui.viewmodels.GroupsViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.app_jdp_gestion_gastos.ui.viewmodel.GroupsViewModel
 
 class GroupsFragment : Fragment() {
     private var _binding: FragmentGroupsBinding? = null
@@ -50,7 +48,7 @@ class GroupsFragment : Fragment() {
             Toast.makeText(requireContext(), "Grupo seleccionado: ${group.name}", Toast.LENGTH_SHORT).show()
 
             // Mostrar el diálogo con los detalles del grupo seleccionado
-            val dialog = GroupDetailsDialog.newInstance(group)
+            val dialog = GroupDetailsDialog.newInstance(group)  // Usando el método newInstance
             dialog.show(childFragmentManager, "GroupDetailsDialog")
         }
         binding.recyclerViewGroups.apply {
