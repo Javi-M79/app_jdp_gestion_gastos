@@ -31,7 +31,9 @@ class HomeFragment : Fragment() {
     private var selectedDate: String = ""
     private var dialogIsVisible = false
 
-    private val userId: String = FirebaseAuth.getInstance().currentUser?.uid ?: "user_id_example"
+    private val userId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private var lastLoadedIncomes: List<Income> = emptyList()
+    private var lastLoadedExpenses: List<Expense> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,24 +54,24 @@ class HomeFragment : Fragment() {
             loadTransactionsForDate(selectedDate)
         }
 
-        // Observadores de los ingresos y gastos
+        // Optimización de observers para evitar actualizaciones innecesarias
         calendaryViewModel.incomeTransactions.observe(viewLifecycleOwner) { incomes ->
-            Log.d("HomeFragment", "Ingresos observados: ${incomes.size}")
-            val expenses = calendaryViewModel.expenseTransactions.value ?: emptyList()
-
-            // Si se seleccionó una fecha, actualizar el diálogo con ambos ingresos y gastos
-            if (selectedDate.isNotEmpty()) {
-                updateTransactionDialog(selectedDate, incomes, expenses)
+            calendaryViewModel.expenseTransactions.value?.let { expenses ->
+                if (selectedDate.isNotEmpty() && (incomes != lastLoadedIncomes || expenses != lastLoadedExpenses)) {
+                    lastLoadedIncomes = incomes
+                    lastLoadedExpenses = expenses
+                    updateTransactionDialog(selectedDate, incomes, expenses)
+                }
             }
         }
 
         calendaryViewModel.expenseTransactions.observe(viewLifecycleOwner) { expenses ->
-            Log.d("HomeFragment", "Gastos observados: ${expenses.size}")
-            val incomes = calendaryViewModel.incomeTransactions.value ?: emptyList()
-
-            // Si se seleccionó una fecha, actualizar el diálogo con ambos ingresos y gastos
-            if (selectedDate.isNotEmpty()) {
-                updateTransactionDialog(selectedDate, incomes, expenses)
+            calendaryViewModel.incomeTransactions.value?.let { incomes ->
+                if (selectedDate.isNotEmpty() && (incomes != lastLoadedIncomes || expenses != lastLoadedExpenses)) {
+                    lastLoadedIncomes = incomes
+                    lastLoadedExpenses = expenses
+                    updateTransactionDialog(selectedDate, incomes, expenses)
+                }
             }
         }
 
@@ -96,7 +98,6 @@ class HomeFragment : Fragment() {
                 val formattedDate = String.format("%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear)
                 dateEditText.setText(formattedDate)
                 selectedDate = formattedDate
-                Log.d("Fecha seleccionada", selectedDate)
             }, year, month, day)
 
             datePicker.show()
@@ -122,7 +123,6 @@ class HomeFragment : Fragment() {
 
                         if (date != null) {
                             val timestamp = Timestamp(date)
-
                             if (incomeRadioButton.isChecked) {
                                 val income = Income(
                                     userId = userId,
@@ -161,40 +161,28 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateTransactionDialog(date: String, incomes: List<Income>, expenses: List<Expense>) {
-        Log.d("CalendaryDialog", "Intentando mostrar diálogo para $date")
-        Log.d("CalendaryDialog", "isAdded: $isAdded, dialogIsVisible: $dialogIsVisible, isStateSaved: ${parentFragmentManager.isStateSaved}")
-
-        // Asegurarse de que no haya conflictos con los estados previos
-        if (isAdded && !dialogIsVisible) {
-            if (parentFragmentManager.isStateSaved) {
-                Log.e("CalendaryDialog", "El estado del fragmento ya fue guardado, no se puede mostrar el diálogo.")
-                return
-            }
-
-            dialogIsVisible = true
+        if (isAdded) {
+            // Crear el diálogo si no está visible
             val dialog = CalendaryDialog(date, incomes, expenses)
 
-            // Llamar a updateData con los nuevos ingresos y gastos
-            dialog.updateData(incomes, expenses)
-
-            dialog.setOnDismissListener {
-                dialogIsVisible = false
-                Log.d("CalendaryDialog", "Diálogo cerrado, restableciendo dialogIsVisible a false")
+            // Si el diálogo ya está visible, actualizarlo en lugar de crear uno nuevo
+            val existingDialog = parentFragmentManager.findFragmentByTag("TransactionDialog") as? CalendaryDialog
+            if (existingDialog != null) {
+                existingDialog.updateData(incomes, expenses)
+            } else {
+                // Si el diálogo no está visible, mostrar uno nuevo
+                dialog.setOnDismissListener {
+                    dialogIsVisible = false
+                }
+                dialog.show(parentFragmentManager, "TransactionDialog")
+                dialogIsVisible = true
             }
-
-            Log.d("CalendaryDialog", "Mostrando diálogo...")
-            dialog.show(parentFragmentManager, "TransactionDialog")
-        } else if (dialogIsVisible) {
-            // Si el diálogo ya está visible, solo actualiza los datos.
-            val calendaryDialog = parentFragmentManager.findFragmentByTag("TransactionDialog") as? CalendaryDialog
-            calendaryDialog?.updateData(incomes, expenses)
-
-            // Línea añadida según tu petición
-            calendaryDialog?.updateData(incomes, expenses)
         } else {
-            Log.e("CalendaryDialog", "No se puede mostrar el diálogo. isAdded: $isAdded, dialogIsVisible: $dialogIsVisible")
+            Log.e("CalendaryDialog", "Fragmento no está agregado.")
         }
-    }    private fun saveIncome(income: Income) {
+    }
+
+    private fun saveIncome(income: Income) {
         calendaryViewModel.addIncome(income)
     }
 
@@ -203,13 +191,24 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTransactionsForDate(date: String) {
-        // Limpiar las transacciones anteriores para asegurarse de cargar los nuevos datos
-        calendaryViewModel.clearIncomeTransactions()
-        calendaryViewModel.clearExpenseTransactions()
-
-        // Cargar los ingresos y gastos para la fecha seleccionada
-        calendaryViewModel.loadIncomesForDate(date)
-        calendaryViewModel.loadExpensesForDate(date)
+        Log.d("CalendaryDialog", "Cargando transacciones para la fecha: $date")
+        if (selectedDate != date) {
+            selectedDate = date
+            // Llamada al ViewModel
+            calendaryViewModel.loadTransactionsForDate(date, userId) { incomes, expenses ->
+                // Una vez que los ingresos y gastos estén cargados, actualizar el diálogo
+                updateTransactionDialog(date, incomes, expenses)
+            }
+            calendaryViewModel.clearIncomeTransactions()
+            calendaryViewModel.clearExpenseTransactions()
+            calendaryViewModel.loadIncomesForDate(date, userId)
+            calendaryViewModel.loadExpensesForDate(date, userId)
+        } else {
+            val incomes = calendaryViewModel.incomeTransactions.value ?: emptyList()
+            val expenses = calendaryViewModel.expenseTransactions.value ?: emptyList()
+            Log.d("CalendaryDialog", "Incomes: $incomes, Expenses: $expenses")
+            updateTransactionDialog(date, incomes, expenses)
+        }
     }
 
     override fun onDestroyView() {
