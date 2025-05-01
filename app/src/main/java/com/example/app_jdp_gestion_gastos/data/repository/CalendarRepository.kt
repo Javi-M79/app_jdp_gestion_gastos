@@ -37,62 +37,44 @@ class CalendarRepository {
             }
     }
 
-    fun getIncomeForDate(date: String, callback: (List<Income>) -> Unit) {
-        val startOfDay = getStartOfDay(date)
-        if (startOfDay == null) {
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            callback(emptyList())
-            return
-        }
-
-        val endOfDay = getEndOfDay(date)
-        if (endOfDay == null){
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            callback(emptyList())
-            return
-        }
+    // Obtener ingresos para una fecha específica (rango de tiempo completo del día)
+    fun getIncomeForDate(date: Timestamp, userId: String, callback: (List<Income>) -> Unit) {
+        val startOfDay = getStartOfDay(date) ?: return callback(emptyList())
+        val endOfDay = getEndOfDay(date) ?: return callback(emptyList())
 
         db.collection("incomes")
-            .whereGreaterThanOrEqualTo("date", startOfDay)
-            .whereLessThan("date", endOfDay)
+            .whereEqualTo("userId", userId)  // Filtrar por userId
+            .whereGreaterThanOrEqualTo("date", startOfDay)  // Comparar con Timestamp
+            .whereLessThan("date", endOfDay)  // Comparar con Timestamp
             .get()
             .addOnSuccessListener { result ->
                 val incomes = result.mapNotNull { it.toObject(Income::class.java) }
-                Log.d("CalendaryRepository", "Ingresos encontrados: ${incomes.size}")
+                Log.d("CalendarRepository", "Ingresos encontrados: ${incomes.size}")
                 callback(incomes)
             }
             .addOnFailureListener { exception ->
-                Log.e("CalendaryRepository", "Error al obtener ingresos: ${exception.message}")
+                Log.e("CalendarRepository", "Error al obtener ingresos: ${exception.message}")
                 callback(emptyList())
             }
     }
 
-    fun getExpenseForDate(date: String, callback: (List<Expense>) -> Unit) {
-        val startOfDay = getStartOfDay(date)
-        if (startOfDay == null) {
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            callback(emptyList())
-            return
-        }
-
-        val endOfDay = getEndOfDay(date)
-        if (endOfDay == null){
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            callback(emptyList())
-            return
-        }
+    // Obtener gastos para una fecha específica (rango de tiempo completo del día)
+    fun getExpenseForDate(date: Timestamp, userId: String, callback: (List<Expense>) -> Unit) {
+        val startOfDay = getStartOfDay(date) ?: return callback(emptyList())
+        val endOfDay = getEndOfDay(date) ?: return callback(emptyList())
 
         db.collection("expenses")
-            .whereGreaterThanOrEqualTo("date", startOfDay)
-            .whereLessThan("date", endOfDay)
+            .whereEqualTo("userId", userId)  // Filtrar por userId
+            .whereGreaterThanOrEqualTo("date", startOfDay)  // Comparar con Timestamp
+            .whereLessThan("date", endOfDay)  // Comparar con Timestamp
             .get()
             .addOnSuccessListener { result ->
                 val expenses = result.mapNotNull { it.toObject(Expense::class.java) }
-                Log.d("CalendaryRepository", "Gastos encontrados: ${expenses.size}")
+                Log.d("CalendarRepository", "Gastos encontrados: ${expenses.size}")
                 callback(expenses)
             }
             .addOnFailureListener { exception ->
-                Log.e("CalendaryRepository", "Error al obtener gastos: ${exception.message}")
+                Log.e("CalendarRepository", "Error al obtener gastos: ${exception.message}")
                 callback(emptyList())
             }
     }
@@ -113,6 +95,13 @@ class CalendarRepository {
             .addOnFailureListener { callback(false) }
     }
 
+    // Convertir la fecha String a Timestamp
+    private fun convertToTimestamp(date: String): Timestamp? {
+        val parsedDate = parseDate(date) ?: return null
+        return Timestamp(parsedDate)
+    }
+
+    // Parsear la fecha en diferentes formatos posibles
     private fun parseDate(date: String): Date? {
         val possibleFormats = arrayOf(
             "dd-MM-yyyy", // 20-03-2025
@@ -132,35 +121,23 @@ class CalendarRepository {
         return null
     }
 
-    private fun getStartOfDay(date: String): Timestamp? {
+    // Obtener el inicio del día (00:00:00) para una fecha
+    private fun getStartOfDay(date: Timestamp): Timestamp? {
         val calendar = Calendar.getInstance()
-        val parsedDate = parseDate(date) ?: return null
-
-        return try {
-            calendar.time = parsedDate
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            Timestamp(calendar.time)
-        } catch (e: Exception) {
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            null
-        }
+        calendar.time = date.toDate()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        return Timestamp(calendar.time)  // Devolvemos Timestamp
     }
 
-    private fun getEndOfDay(date: String): Timestamp? {
+    // Obtener el final del día (23:59:59) para una fecha
+    private fun getEndOfDay(date: Timestamp): Timestamp? {
         val calendar = Calendar.getInstance()
-        val parsedDate = parseDate(date) ?: return null
-
-        return try {
-            calendar.time = parsedDate
-            calendar.set(Calendar.HOUR_OF_DAY, 23)
-            calendar.set(Calendar.MINUTE, 59)
-            calendar.set(Calendar.SECOND, 59)
-            Timestamp(calendar.time)
-        } catch (e: Exception) {
-            Log.e("CalendaryRepository", "Error al convertir la fecha a Timestamp")
-            null
-        }
+        calendar.time = date.toDate()
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        return Timestamp(calendar.time)  // Devolvemos Timestamp
     }
 }
