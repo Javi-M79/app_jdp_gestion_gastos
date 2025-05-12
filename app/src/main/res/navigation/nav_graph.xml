@@ -33,6 +33,7 @@
         <action
             android:id="@+id/action_homeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+
     </fragment>
 
     <fragment
@@ -71,17 +72,25 @@
         android:label="fragment_groups"
         tools:layout="@layout/fragment_groups" />
 
-    <!--Fragment de registro-->
     <fragment
         android:id="@+id/registroFragment"
         android:name="com.example.app_jdp_gestion_gastos.ui.fragments.RegistroFragment"
-        android:label="RegistroFragment">
-        <!--Navegacion fragment registro a login-->
-        <action
+        android:label="RegistroFragment"
+        tools:layout="@layout/fragment_registro">
 
+        <action
             android:id="@+id/action_registroFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/groupChartFragment"
+        android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GroupChartFragment"
+        android:label="GroupChartFragment"
+        tools:layout="@layout/fragment_group_chart"/>
 
+    <action
+        android:id="@+id/action_global_settingsFragment"
+        app:destination="@id/settingsFragment"
+        app:launchSingleTop="true" />
 </navigation>

@@ -1,52 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.activities.MainActivity">
 
-    <ImageButton
-        android:id="@+id/btnLogOut"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@android:color/transparent"
-        android:padding="20dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginRight="20dp"
-        android:src="@drawable/logout_24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:elevation="50dp"
-        />
-
-    <TextView
-        android:id="@+id/tvSaludoUsuario"
+    <!-- Encabezado derecho con saludo, logout y settings -->
+    <LinearLayout
+        android:id="@+id/headerRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
-        android:textSize="20dp"
-        android:textColor="@color/black"
-        android:elevation="50dp"
-        android:text="Nombre Usuario"
-        app:layout_constraintBottom_toBottomOf="@id/btnLogOut"
-        app:layout_constraintEnd_toStartOf="@id/btnLogOut"
-        app:layout_constraintTop_toTopOf="@id/btnLogOut"
-        />
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView
+            android:id="@+id/tvSaludoUsuario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre Usuario"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_gravity="center_vertical"
+            android:paddingEnd="8dp" />
 
-    <!-- NavHostFragment -->
+        <ImageButton
+            android:id="@+id/btnLogOut"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:padding="10dp"
+            android:src="@drawable/logout_24dp"
+            android:contentDescription="Cerrar sesión"/>
+
+        <!-- Botón para abrir SettingsFragment -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:padding="10dp"
+            android:src="@drawable/ajustes"
+            android:contentDescription="Configuración" />
+    </LinearLayout>
+
+    <!-- Fragmento principal con navegación -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment_content_main"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph"
-        app:layout_constraintTop_toBottomOf="@id/tvSaludoUsuario"
-        app:layout_constraintBottom_toTopOf="@id/btnNavegacion"/>
+        app:layout_constraintTop_toBottomOf="@id/headerRight"
+        app:layout_constraintBottom_toTopOf="@id/btnNavegacion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-
+    <!-- Bottom navigation para 5 ítems -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/btnNavegacion"
         android:layout_width="0dp"
@@ -54,9 +69,8 @@
         app:itemIconSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/menu_main"
-        app:itemTextColor="?attr/colorOnBackground"/>
+        app:itemTextColor="?attr/colorOnBackground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

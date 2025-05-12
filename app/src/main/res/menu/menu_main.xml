@@ -21,9 +21,8 @@
         android:title="Grupos"/>
 
     <item
-        android:id="@+id/settingsFragment"
-        android:icon="@drawable/ajustes"
-        android:title="Ajustes" />
-
+        android:id="@+id/groupChartFragment"
+        android:icon="@drawable/grafico"
+        android:title="Gráfico" />
 
 </menu>
