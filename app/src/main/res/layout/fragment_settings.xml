@@ -1,199 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:padding="20dp"
+    tools:context=".ui.activities.AjustesActivity">
 
-    <TextView
-        android:id="@+id/tvTituloAjustes"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="CONFIGURACIÓN"
-        android:textAlignment="center"
-        android:textSize="35sp"
-        android:layout_marginTop="50dp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnBackground"
+        android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Sección de moneda -->
         <LinearLayout
-            android:id="@+id/lyMoneda"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="60dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTituloAjustes">
-
-            <TextView
-                android:id="@+id/tvMoneda"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Moneda:"
-                android:textSize="15sp"
-                android:textColor="?attr/colorOnBackground"
-                android:layout_marginEnd="12dp" />
-
-            <Spinner
-                android:id="@+id/spMoneda"
-                android:textColor="@color/white"
-                android:background="@drawable/spinner_background"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-    <!-- Sección de modo oscuro -->
-        <LinearLayout
-            android:id="@+id/lyOscuro"
+            android:id="@+id/lyContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            android:gravity="center_vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lyMoneda">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvDarkMode"
+                android:id="@+id/tvTituloAjustes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CONFIGURACIÓN"
+                android:textAlignment="center"
+                android:textSize="35sp"
+                android:layout_marginTop="50dp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnBackground"/>
+
+            <!-- Sección de moneda -->
+            <LinearLayout
+                android:id="@+id/lyMoneda"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Modo Oscuro"
-                android:textSize="15sp"
-                android:textColor="?attr/colorOnBackground"
-                />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="60dp">
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchDarkMode"
+                <TextView
+                    android:id="@+id/tvMoneda"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Moneda:"
+                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnBackground"
+                    android:layout_marginEnd="12dp" />
+
+                <Spinner
+                    android:id="@+id/spMoneda"
+                    android:textColor="@color/white"
+                    android:background="@drawable/spinner_background"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Sección de modo oscuro -->
+            <LinearLayout
+                android:id="@+id/lyOscuro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    android:id="@+id/tvDarkMode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Modo Oscuro"
+                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnBackground"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchDarkMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Sección de notificaciones -->
+            <LinearLayout
+                android:id="@+id/lyNotificaciones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    android:id="@+id/tvNotificaciones"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Notificaciones"
+                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnBackground" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchNotificaciones"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Sección de cambio de idioma -->
+            <LinearLayout
+                android:id="@+id/lyIdioma"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="20dp" />
+
+            <!-- Botón para exportar datos -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExportData"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:text="Exportar Datos"
+                android:layout_marginTop="20dp" />
+
+            <!-- Botones -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveBudget"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:text="Guardar Presupuesto"
+                android:layout_marginTop="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResetData"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Restablecer Datos"
+                android:backgroundTint="@color/error"
+                android:textColor="@color/white"
+                android:layout_marginTop="20dp" />
+
+            <!-- Sección Acerca de -->
+            <TextView
+                android:id="@+id/tvAcercaDe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Acerca de la aplicación"
+                android:textColor="?attr/colorOnBackground"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:id="@+id/tvAppInfo"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestor de Gastos v1.0"
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnyuda"
+                app:srcCompat="@drawable/informacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:layout_gravity="end"
+                android:layout_marginBottom="20dp" />
         </LinearLayout>
 
-    <!-- Sección de notificaciones -->
-    <LinearLayout
-        android:id="@+id/lyNotificaciones"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lyOscuro">
-
-        <TextView
-            android:id="@+id/tvNotificaciones"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Notificaciones"
-            android:textSize="15sp"
-            android:textColor="?attr/colorOnBackground"
-            />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchNotificaciones"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <!-- Sección de cambio de idioma -->
-    <LinearLayout
-        android:id="@+id/lyIdioma"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lyNotificaciones">
-
-    </LinearLayout>
-
-    <!-- Botón para exportar datos -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnExportData"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white"
-        android:text="Exportar Datos"
-        app:layout_constraintTop_toBottomOf="@id/lyIdioma"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
-
-
-    <!-- Botones -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSaveBudget"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/primaryColor"
-        android:textColor="@color/white"
-        android:text="Guardar Presupuesto"
-        app:layout_constraintTop_toBottomOf="@id/btnExportData"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnResetData"
-        android:layout_width="0dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_height="wrap_content"
-        android:text="Restablecer Datos"
-        app:layout_constraintTop_toBottomOf="@id/btnSaveBudget"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        android:backgroundTint="@color/error"
-        android:textColor="@color/white" />
-
-    <!-- Sección Acerca de -->
-    <TextView
-        android:id="@+id/tvAcercaDe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Acerca de la aplicación"
-        android:textColor="?attr/colorOnBackground"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/tvAppInfo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnResetData" />
-
-    <TextView
-        android:id="@+id/tvAppInfo"
-        android:textAlignment="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Gestor de Gastos v1.0"
-        android:textColor="@color/secondary_text"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="20dp"/>
-
-    <ImageButton
-        android:id="@+id/btnyuda"
-        app:srcCompat="@drawable/informacion"
-        android:layout_width="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
