@@ -11,16 +11,16 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.app_jdp_gestion_gastos.data.repository.GroupChartRepository
-import com.example.app_jdp_gestion_gastos.databinding.FragmentGroupChartBinding
+import com.example.app_jdp_gestion_gastos.databinding.FragmentGraphicsChartBinding
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.GroupChartViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.GroupChartViewModelFactory
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.util.*
 
-class GroupChartFragment : Fragment() {
+class GraphicsFragment : Fragment() {
 
-    private var _binding: FragmentGroupChartBinding? = null
+    private var _binding: FragmentGraphicsChartBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: GroupChartViewModel by viewModels {
@@ -34,7 +34,7 @@ class GroupChartFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentGroupChartBinding.inflate(inflater, container, false)
+        _binding = FragmentGraphicsChartBinding.inflate(inflater, container, false)
         return binding.root
     }
 
