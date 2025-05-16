@@ -2,31 +2,45 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="?android:attr/windowBackground">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle"
+        android:dividerPadding="8dp"
+        android:layout_marginBottom="16dp">
 
         <EditText
             android:id="@+id/etName"
             android:hint="Nombre"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text" />
 
         <EditText
             android:id="@+id/etCategory"
             android:hint="Categoría"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text" />
 
         <EditText
             android:id="@+id/etAmount"
             android:hint="Importe"
             android:inputType="numberDecimal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text" />
 
         <EditText
             android:id="@+id/etDate"
@@ -34,18 +48,24 @@
             android:focusable="false"
             android:clickable="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text" />
 
         <Switch
             android:id="@+id/switchRecurring"
             android:text="¿Es recurrente?"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="15sp" />
 
         <Spinner
             android:id="@+id/spinnerRecurrence"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/btnSave"
@@ -53,6 +73,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="24dp"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp" />
     </LinearLayout>
 </ScrollView>
