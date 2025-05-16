@@ -85,7 +85,7 @@
             android:id="@+id/btnSaveChart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Guardar gráfico PDF"
+            android:text="Guardar PDF"
             android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

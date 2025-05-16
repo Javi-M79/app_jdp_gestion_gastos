@@ -104,7 +104,7 @@ class GraphicsFragment : Fragment() {
             chartView.isDrawingCacheEnabled = false
             chartView.destroyDrawingCache()
 
-            // Crear PDF en memoria
+            // Crear PDF en memoria del telefono
             val document = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
             val page = document.startPage(pageInfo)
