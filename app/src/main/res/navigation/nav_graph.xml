@@ -85,9 +85,9 @@
 
     <fragment
         android:id="@+id/groupChartFragment"
-        android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GroupChartFragment"
+        android:name="com.example.app_jdp_gestion_gastos.ui.fragments.GraphicsFragment"
         android:label="GroupChartFragment"
-        tools:layout="@layout/fragment_group_chart"/>
+        tools:layout="@layout/fragment_graphics_chart"/>
 
     <action
         android:id="@+id/action_global_settingsFragment"
