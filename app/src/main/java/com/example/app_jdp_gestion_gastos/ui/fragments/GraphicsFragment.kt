@@ -178,7 +178,7 @@ class GraphicsFragment : Fragment() {
             PieEntry(gastos, "Gastos")
         )
 
-        val pieDataSet = PieDataSet(entries, "Distribución").apply {
+        val pieDataSet = PieDataSet(entries, "").apply {
             colors = listOf(Color.GREEN, Color.RED)
             valueTextSize = 16f
         }
