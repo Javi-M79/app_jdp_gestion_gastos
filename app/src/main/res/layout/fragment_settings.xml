@@ -1,189 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollViewSettings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    tools:context=".ui.activities.AjustesActivity">
+    android:background="?android:windowBackground"
+    android:padding="16dp">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    <LinearLayout
+        android:id="@+id/settingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle"
+        android:dividerPadding="8dp">
 
+        <!-- Reusable setting item layout -->
+        <!-- Presupuesto mensual -->
         <LinearLayout
-            android:id="@+id/lyContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:id="@+id/layoutBudget"
+            style="@style/SettingsItemStyle">
 
             <TextView
-                android:id="@+id/tvTituloAjustes"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="CONFIGURACIÓN"
-                android:textAlignment="center"
-                android:textSize="35sp"
-                android:layout_marginTop="50dp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnBackground"/>
+                android:text="Presupuesto mensual"
+                android:textSize="16sp" />
 
-            <!-- Sección de moneda -->
-            <LinearLayout
-                android:id="@+id/lyMoneda"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="60dp">
-
-                <TextView
-                    android:id="@+id/tvMoneda"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Moneda:"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorOnBackground"
-                    android:layout_marginEnd="12dp" />
-
-                <Spinner
-                    android:id="@+id/spMoneda"
-                    android:textColor="@color/white"
-                    android:background="@drawable/spinner_background"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- Sección de modo oscuro -->
-            <LinearLayout
-                android:id="@+id/lyOscuro"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp">
-
-                <TextView
-                    android:id="@+id/tvDarkMode"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Modo Oscuro"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorOnBackground"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchDarkMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- Sección de notificaciones -->
-            <LinearLayout
-                android:id="@+id/lyNotificaciones"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp">
-
-                <TextView
-                    android:id="@+id/tvNotificaciones"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Notificaciones"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorOnBackground" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchNotificaciones"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- Sección de cambio de idioma -->
-            <LinearLayout
-                android:id="@+id/lyIdioma"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp" />
-
-            <!-- Botón para exportar datos -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExportData"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/primaryColor"
-                android:textColor="@color/white"
-                android:text="Exportar Datos"
-                android:layout_marginTop="20dp" />
-
-            <!-- Botones -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveBudget"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/primaryColor"
-                android:textColor="@color/white"
-                android:text="Guardar Presupuesto"
-                android:layout_marginTop="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnResetData"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Restablecer Datos"
-                android:backgroundTint="@color/error"
-                android:textColor="@color/white"
-                android:layout_marginTop="20dp" />
-
-            <!-- Sección Acerca de -->
-            <TextView
-                android:id="@+id/tvAcercaDe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Acerca de la aplicación"
-                android:textColor="?attr/colorOnBackground"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="30dp"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:id="@+id/tvAppInfo"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gestor de Gastos v1.0"
-                android:textColor="@color/secondary_text"
-                android:textSize="16sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="4dp" />
-
-            <ImageButton
-                android:id="@+id/btnyuda"
-                app:srcCompat="@drawable/informacion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:layout_gravity="end"
-                android:layout_marginBottom="20dp" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Editar presupuesto" />
         </LinearLayout>
 
-    </ScrollView>
+        <!-- Tema claro / oscuro -->
+        <LinearLayout
+            android:id="@+id/layoutTheme"
+            style="@style/SettingsItemStyle">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Tema oscuro"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/switchTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Notificaciones -->
+        <LinearLayout
+            android:id="@+id/layoutNotifications"
+            style="@style/SettingsItemStyle">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Notificaciones diarias"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/switchNotifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Exportar datos -->
+        <LinearLayout
+            android:id="@+id/layoutExport"
+            style="@style/SettingsItemStyle">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Exportar datos"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_save"
+                android:contentDescription="Exportar datos" />
+        </LinearLayout>
+
+        <!-- Restablecer datos -->
+        <LinearLayout
+            android:id="@+id/layoutReset"
+            style="@style/SettingsItemStyle">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Restablecer datos"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Restablecer datos" />
+        </LinearLayout>
+
+        <!-- Botón Ayuda -->
+        <LinearLayout
+            android:id="@+id/layoutHelp"
+            style="@style/SettingsItemStyle"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Ayuda"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_help"
+                android:contentDescription="Ayuda" />
+        </LinearLayout>
+
+        <!-- Cerrar sesión -->
+        <LinearLayout
+            android:id="@+id/layoutLogout"
+            style="@style/SettingsItemStyle">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Cerrar sesión"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_lock_power_off"
+                android:contentDescription="Cerrar sesión" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
