@@ -28,7 +28,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
 
 class SettingsFragment : Fragment() {
 
@@ -54,6 +53,7 @@ class SettingsFragment : Fragment() {
         val layoutReset = view.findViewById<LinearLayout>(R.id.layoutReset)
         val layoutLogout = view.findViewById<LinearLayout>(R.id.layoutLogout)
         val layoutHelp = view.findViewById<LinearLayout>(R.id.layoutHelp)
+        val layoutPassword = view.findViewById<LinearLayout>(R.id.layoutChangePassword)
 
         switchTheme.isChecked = prefs.getBoolean("dark_mode", false)
         switchNotifications.isChecked = prefs.getBoolean("notifications", true)
@@ -89,6 +89,7 @@ class SettingsFragment : Fragment() {
         layoutHelp.setOnClickListener {
             AyudaDialogo().show(parentFragmentManager, "AyudaDialogo")
         }
+        layoutPassword.setOnClickListener { resetPassword() }
 
         return view
     }
@@ -336,6 +337,27 @@ class SettingsFragment : Fragment() {
 
         builder.setNeutralButton("Cancelar", null)
         builder.show()
+    }
+
+    private fun resetPassword() {
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.let {
+            val email = it.email
+            if (email != null) {
+                FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(requireContext(), "Correo de restablecimiento enviado a $email", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(requireContext(), "Error al enviar el correo de restablecimiento", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+            } else {
+                Toast.makeText(requireContext(), "No se encontró el correo del usuario", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            Toast.makeText(requireContext(), "No hay usuario autenticado", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onRequestPermissionsResult(

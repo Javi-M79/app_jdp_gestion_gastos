@@ -132,6 +132,24 @@
                 android:contentDescription="Ayuda" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/layoutChangePassword"
+            style="@style/SettingsItemStyle">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Cambiar contraseña"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_lock_idle_lock"
+                android:contentDescription="Cambiar contraseña" />
+        </LinearLayout>
+
         <!-- Cerrar sesión -->
         <LinearLayout
             android:id="@+id/layoutLogout"
