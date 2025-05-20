@@ -31,10 +31,14 @@ import java.util.*
 
 class GroupsFragment : Fragment() {
 
+    // ViewBinding para acceder a las vistas del layout
     private var _binding: FragmentGroupsBinding? = null
     private val binding get() = _binding!!
+    // ViewModel asociado al Fragment
     private val viewModel: GroupsViewModel by viewModels()
+    // Adaptador para el RecyclerView de grupos
     private lateinit var groupAdapter: GroupAdapter
+    // Lista con todos los grupos para la búsqueda
     private var allGroups: List<Group> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,22 +56,27 @@ class GroupsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Configuración del recyclerView y observadores
         setupRecyclerView()
         setupObservers()
 
+        // TODO: Botón para crear un nuevo grupo
         binding.fabAddGroup.setOnClickListener {
             val dialog = CreateGroupDialog()
             dialog.show(childFragmentManager, "CreateGroupDialog")
         }
 
+        // TODO: Botón para borrar un grupo seleccionado
         binding.btnBorrarGrupo.setOnClickListener {
             viewModel.deleteSelectedGroup()
         }
 
+        // TODO: Botón para invitar usuarios
         binding.btnInvitarUsuario.setOnClickListener {
             showInviteUserDialog()
         }
 
+        // TODO: Botón para exportar a PDF el grupo seleccionado
         binding.btnExportarGrupo.setOnClickListener {
             exportGroupToPdf()
         }
@@ -79,6 +88,7 @@ class GroupsFragment : Fragment() {
             groupAdapter.setSelectedGroup(group)
             Toast.makeText(requireContext(), "Grupo seleccionado: ${group.name}", Toast.LENGTH_SHORT).show()
 
+            // Mostramos un diálogo con los detalles del grupo
             val dialog = GroupDetailsDialog.newInstance(group)
             dialog.show(childFragmentManager, "GroupDetailsDialog")
         }
@@ -88,6 +98,8 @@ class GroupsFragment : Fragment() {
             adapter = groupAdapter
         }
     }
+
+    // TODO: Observamos los cambios en la lista de grupos y en el grupo seleccionado
     private fun setupObservers() {
         viewModel.groups.observe(viewLifecycleOwner) { groups ->
             allGroups = groups
@@ -95,6 +107,7 @@ class GroupsFragment : Fragment() {
         }
 
         viewModel.selectedGroup.observe(viewLifecycleOwner) { selectedGroup ->
+            // Habilita o deshabilita los botones según haya un grupo seleccionado
             binding.btnBorrarGrupo.isEnabled = selectedGroup != null
             binding.btnInvitarUsuario.isEnabled = selectedGroup != null
             binding.btnExportarGrupo.isEnabled = selectedGroup != null
@@ -104,6 +117,8 @@ class GroupsFragment : Fragment() {
             }
         }
     }
+
+    // TODO: Muestra un diálogo para introducir el correo electrónico del usuario
     private fun showInviteUserDialog() {
         val selectedGroup = viewModel.selectedGroup.value
         if (selectedGroup == null) {
@@ -135,6 +150,7 @@ class GroupsFragment : Fragment() {
         builder.show()
     }
 
+    // TODO: Busca al usuario en Firestore por email e intenta añadirlo al grupo
     private fun inviteUserByEmail(email: String, group: Group) {
         val db = FirebaseFirestore.getInstance()
         db.collection("users")
@@ -169,6 +185,7 @@ class GroupsFragment : Fragment() {
             }
     }
 
+    // TODO: exporta la información en PDF
     private fun exportGroupToPdf() {
         val group = viewModel.selectedGroup.value
         if (group == null) {
@@ -195,6 +212,7 @@ class GroupsFragment : Fragment() {
 
             document.close()
 
+            // Abre el archivo PDF con una APP externa
             val uri: Uri = FileProvider.getUriForFile(
                 requireContext(),
                 "${requireContext().packageName}.fileprovider",
@@ -211,6 +229,7 @@ class GroupsFragment : Fragment() {
         }
     }
 
+    // TODO: Crea el menú de opciones y configura la búsqueda de grupos
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_groups, menu)
         val searchItem = menu.findItem(R.id.action_search)
@@ -243,6 +262,8 @@ class GroupsFragment : Fragment() {
             }
         })
     }
+
+    // Limpiamos la referencia del binding cuando se destruye la vista
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

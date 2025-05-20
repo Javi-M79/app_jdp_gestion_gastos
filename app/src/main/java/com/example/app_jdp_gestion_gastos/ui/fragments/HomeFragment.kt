@@ -25,13 +25,23 @@ import java.util.*
 
 class HomeFragment : Fragment() {
 
+    // ViewBinding para acceder a las vistas del layout
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    // ViewModel asociado al Fragment
     private val calendaryViewModel: CalendarViewModel by viewModels()
+
+    // Variable para almacenar la fecha seleccionada
     private var selectedDate: String = ""
+
+    // Variable para controlar si el diálogo está visible
     private var dialogIsVisible = false
 
+    // UID del usuario logeado
     private val userId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    // Variables para almacenar las últimas listas cargadas
     private var lastLoadedIncomes: List<Income> = emptyList()
     private var lastLoadedExpenses: List<Expense> = emptyList()
 
@@ -46,8 +56,10 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Cargamos todas las transacciones del usuario
         calendaryViewModel.loadAllTransactions(userId)
 
+        // Listener para el cambio de fecha en el calendario
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format("%02d-%02d-%04d", dayOfMonth, month + 1, year)
             Log.d("CalendaryDialog", "Día seleccionado: $selectedDate")
@@ -65,6 +77,7 @@ class HomeFragment : Fragment() {
             }
         }
 
+        // Observamos cambios en gastos y actualizamos el diálogo si la fecha esta seleccionada
         calendaryViewModel.expenseTransactions.observe(viewLifecycleOwner) { expenses ->
             calendaryViewModel.incomeTransactions.value?.let { incomes ->
                 if (selectedDate.isNotEmpty() && (incomes != lastLoadedIncomes || expenses != lastLoadedExpenses)) {
@@ -75,11 +88,13 @@ class HomeFragment : Fragment() {
             }
         }
 
+        // Mostramos el dialogo al hacer click en el botón
         binding.btnTransaction.setOnClickListener {
             showAddTransactionDialog()
         }
     }
 
+    // TODO: Mostramos un AlertDialog para añadir una transacción nueva
     private fun showAddTransactionDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_transaction, null)
         val descriptionEditText = dialogView.findViewById<EditText>(R.id.etDescription)
@@ -88,6 +103,7 @@ class HomeFragment : Fragment() {
         val incomeRadioButton = dialogView.findViewById<RadioButton>(R.id.rbIncome)
         val expenseRadioButton = dialogView.findViewById<RadioButton>(R.id.rbExpense)
 
+        // Mostramos el DatePicker (calendario) al hacer click en el EditText de la fecha
         dateEditText.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -103,6 +119,7 @@ class HomeFragment : Fragment() {
             datePicker.show()
         }
 
+        // Configuración del dialogo
         AlertDialog.Builder(requireContext())
             .setTitle("Añadir Registro")
             .setView(dialogView)
@@ -121,6 +138,7 @@ class HomeFragment : Fragment() {
                             null
                         }
 
+                        // Creamos y guardamos la transaccion según el tipo (ingreso o gasto)
                         if (date != null) {
                             val timestamp = Timestamp(date)
                             if (incomeRadioButton.isChecked) {
@@ -160,6 +178,7 @@ class HomeFragment : Fragment() {
             .show()
     }
 
+    // TODO: Mostramos o actualiamos el diálogo según el dia seleccionado
     private fun updateTransactionDialog(date: String, incomes: List<Income>, expenses: List<Expense>) {
         if (isAdded) {
             // Crear el diálogo si no está visible
@@ -182,14 +201,17 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // TODO: Guarda un ingreso en el viewModel
     private fun saveIncome(income: Income) {
         calendaryViewModel.addIncome(income)
     }
 
+    // TODO: Guarda un gasto en el viewModel
     private fun saveExpense(expense: Expense) {
         calendaryViewModel.addExpense(expense)
     }
 
+    // TODO: Carga las transacciones de la fecha seleccionada
     private fun loadTransactionsForDate(date: String) {
         Log.d("CalendaryDialog", "Cargando transacciones para la fecha: $date")
         if (selectedDate != date) {

@@ -10,9 +10,11 @@ import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsDialogBinding
 
 class StatsDialog : DialogFragment() {
 
+    // ViewBinding para acceder a las vistas del layout
     private var _binding: FragmentStatsDialogBinding? = null
     private val binding get() = _binding!!
 
+    // Variables para el título del diálogo y los elementos a mostrar
     private lateinit var title: String
     private lateinit var items: List<String>
 
@@ -24,6 +26,7 @@ class StatsDialog : DialogFragment() {
         return binding.root
     }
 
+    // Configurar el tamaño del diálogo y fondo al iniciarse
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
@@ -50,6 +53,7 @@ class StatsDialog : DialogFragment() {
         _binding = null
     }
 
+    // TODO: método estático para crear una nueva instancia del diálogo con título y elementos
     companion object {
         fun newInstance(title: String, items: List<String>): StatsDialog {
             val fragment = StatsDialog()
@@ -61,6 +65,7 @@ class StatsDialog : DialogFragment() {
         }
     }
 
+    // TODO: Extrae los argumentos pasado en newInstance
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
