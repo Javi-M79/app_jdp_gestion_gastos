@@ -28,13 +28,16 @@ import java.util.*
 
 class GraphicsFragment : Fragment() {
 
+    // ViewBinding para acceder a las vistas del layout
     private var _binding: FragmentGraphicsChartBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel para manejar la lógica de la gráfica
     private val viewModel: GroupChartViewModel by viewModels {
         GroupChartViewModelFactory(GroupChartRepository())
     }
 
+    // Variables para almacenar el mes y año seleccionados
     private var selectedMonth: Int = Calendar.getInstance().get(Calendar.MONTH)
     private var selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 
@@ -49,14 +52,18 @@ class GraphicsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Lista de meses
         val months = listOf(
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
         )
 
+        // Adaptador para el Spinner de meses
         val monthAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months)
         binding.spinnerMonth.adapter = monthAdapter
         binding.spinnerMonth.setSelection(selectedMonth)
+
+        // Listener para cuando seleccionamos un mes de la lista
         binding.spinnerMonth.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedMonth = position
@@ -66,11 +73,14 @@ class GraphicsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Lista de años desde el 2020 hasta el año actual
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
         val years = (2020..currentYear).toList()
         val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years)
         binding.spinnerYear.adapter = yearAdapter
         binding.spinnerYear.setSelection(years.indexOf(selectedYear))
+
+        // Listener para cuando seleccionamos un año de la lista
         binding.spinnerYear.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedYear = years[position]
@@ -80,6 +90,7 @@ class GraphicsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Listener para cuando seleccionamos un tipo de gráfico
         binding.graphTypeGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioBarChart -> {
@@ -94,9 +105,11 @@ class GraphicsFragment : Fragment() {
             }
         }
 
+        // TODO: Botón para guardar el gráfico como PDF
         binding.btnSaveChart.setOnClickListener {
             val chartView = if (binding.barChart.visibility == View.VISIBLE) binding.barChart else binding.pieChart
 
+            // Convertir el gráfico a Bitmap
             chartView.isDrawingCacheEnabled = true
             val bitmap = Bitmap.createBitmap(chartView.width, chartView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
@@ -128,12 +141,14 @@ class GraphicsFragment : Fragment() {
             else
                 "grafico_pastel_ingresos_gastos.pdf"
 
+            // Guarda el PDF dependiendo de la versión de Android.
             val saved = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 savePdfToDownloads(pdfFileName, pdfBytes)
             } else {
                 savePdfLegacy(pdfFileName, pdfBytes)
             }
 
+            // Dependiendo del resultado, muestra un mensaje al usuario
             if (saved) {
                 Toast.makeText(requireContext(), "PDF guardado en Descargas y listo para compartir", Toast.LENGTH_SHORT)
                     .show()
@@ -142,8 +157,10 @@ class GraphicsFragment : Fragment() {
             }
         }
 
+        // Carga los datos iniciales
         viewModel.loadData(selectedMonth, selectedYear)
 
+        // Observa los cambios en los datos del gráfico
         viewModel.barChartData.observe(viewLifecycleOwner) { (ingresos, gastos) ->
             drawBarChart(ingresos, gastos)
             drawPieChart(ingresos, gastos)
@@ -151,6 +168,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Dibuja el gráfico de barras
     private fun drawBarChart(ingresos: Float, gastos: Float) {
         val entries = listOf(
             BarEntry(0f, ingresos),
@@ -172,6 +190,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Dibuja el gráfico pastel
     private fun drawPieChart(ingresos: Float, gastos: Float) {
         val entries = listOf(
             PieEntry(ingresos, "Ingresos"),
@@ -191,11 +210,13 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Mostramos el balance en el Textview
     private fun updateBalanceText(ingresos: Float, gastos: Float) {
         val balance = ingresos - gastos
         binding.tvBalance.text = "Balance: ${String.format("%.2f", balance)} €"
     }
 
+    // TODO: Guarda el PDF en el directorio de Descargas y lo comparte
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun savePdfToDownloads(pdfName: String, pdfBytes: ByteArray): Boolean {
         val contentValues = ContentValues().apply {
@@ -213,6 +234,7 @@ class GraphicsFragment : Fragment() {
 
         Log.d("PDF_SAVE", "PDF guardado en URI: $itemUri")
 
+        // Escribe los datos en el PDF
         resolver.openOutputStream(itemUri)?.use { outputStream ->
             outputStream.write(pdfBytes)
         } ?: run {
@@ -220,6 +242,7 @@ class GraphicsFragment : Fragment() {
             return false
         }
 
+        // Finaliza el guardado
         contentValues.clear()
         contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
         resolver.update(itemUri, contentValues, null, null)
@@ -230,6 +253,7 @@ class GraphicsFragment : Fragment() {
         return true
     }
 
+    // TODO: Guarda el PDF en el directorio de Descargas (versiones anteriores a Android 10)
     private fun savePdfLegacy(pdfName: String, pdfBytes: ByteArray): Boolean {
         val downloadsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val pdfFile = File(downloadsPath, pdfName)
@@ -246,6 +270,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Comparte el PDF  con otras aplicaciones
     private fun sharePdfUri(uri: android.net.Uri) {
         val shareIntent = android.content.Intent().apply {
             action = android.content.Intent.ACTION_SEND
@@ -256,6 +281,7 @@ class GraphicsFragment : Fragment() {
         startActivity(android.content.Intent.createChooser(shareIntent, "Compartir PDF con..."))
     }
 
+    // Liberamos la referencia del binding cuando se destruye la vista
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

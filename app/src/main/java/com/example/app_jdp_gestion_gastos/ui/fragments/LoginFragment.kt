@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginFragment : Fragment() {
 
+    // ViewBinding para acceder a las vistas del layout
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
@@ -89,9 +90,11 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // TODO: función para aplicar animaciones de foco a los EditText
     private fun applyFocusAnimations() {
         val fondo = binding.ivFondo
 
+        // Aplicamos animación escalado
         binding.etMail.setOnFocusChangeListener { _, hasFocus ->
             fondo.startAnimation(
                 createScaleAnimation(
@@ -101,6 +104,7 @@ class LoginFragment : Fragment() {
             )
         }
 
+        // Aplicamos animación escalado
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
             fondo.startAnimation(
                 createScaleAnimation(
@@ -111,6 +115,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // TODO: función para crear una animación de escalado
     private fun createScaleAnimation(from: Float, to: Float): ScaleAnimation {
         return ScaleAnimation(
             from, to,
