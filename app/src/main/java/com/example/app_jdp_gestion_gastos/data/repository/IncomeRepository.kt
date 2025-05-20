@@ -13,7 +13,9 @@ class IncomeRepository {
     // Agregar un nuevo ingreso a Firestore
     suspend fun addIncome(income: Income): Boolean {
         return try {
+            //Conexion con firebase
             incomeCollection.add(income).await()
+
             true
         } catch (e: Exception) {
             false

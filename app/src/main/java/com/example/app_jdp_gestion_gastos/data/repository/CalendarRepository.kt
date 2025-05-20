@@ -6,6 +6,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+//Repositorio que se encarga de gestionar los ingresos y gastos por fecha.
+
 class CalendarRepository {
     private val db = FirebaseFirestore.getInstance()
 
