@@ -24,7 +24,6 @@ class UserRepository(
 
     suspend fun registerUser(email: String, password: String, name: String): String? {
         return try {
-            //Desde el reposotorio conectamos con el auth de firebase.
 
             //Crear usuario en Firebase Authentication.
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
@@ -41,6 +40,7 @@ class UserRepository(
             )
 
             db.collection("users").document(userId).set(newUser).await()
+            //Devolvemos el UID del usuario registrado.
             userId
         } catch (e: Exception) {
             throw Exception("Error al registrar usuario: ${e.message}")

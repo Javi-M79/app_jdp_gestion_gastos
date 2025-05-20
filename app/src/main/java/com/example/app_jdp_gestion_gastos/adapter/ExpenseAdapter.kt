@@ -11,6 +11,7 @@ import com.example.app_jdp_gestion_gastos.R
 import com.example.app_jdp_gestion_gastos.data.model.Expense
 import com.example.app_jdp_gestion_gastos.databinding.ItemTransactionBinding
 
+
 class ExpenseAdapter(
     private val onTransactionSelected: (Expense) -> Unit,
     private val onRequestDelete: (Expense) -> Unit
@@ -36,6 +37,7 @@ class ExpenseAdapter(
         notifyItemChanged(previousSelectedPosition) // Notificar cambio en el ítem anterior
         notifyItemChanged(selectedPosition) // Notificar cambio en el ítem actual
     }
+
 
     class ExpenseViewHolder(
         private val binding: ItemTransactionBinding,

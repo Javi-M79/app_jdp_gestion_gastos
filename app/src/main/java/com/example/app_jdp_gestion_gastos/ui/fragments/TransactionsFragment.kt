@@ -61,18 +61,22 @@ class TransactionsFragment : Fragment() {
         fetchData()
     }
 
+    // Configuración de los adaptadores
     private fun setupAdapters() {
+        // Adaptador para ingresos
         incomeAdapter = IncomeAdapter(
             onTransactionSelected = { income -> openEditDialog(income, isIncome = true) },
             onRequestDelete = { income -> showDeleteIncomeDialog(income) }
         )
 
+        //Adaptador para gastos
         expenseAdapter = ExpenseAdapter(
             onTransactionSelected = { expense -> openEditDialog(expense, isIncome = false) },
             onRequestDelete = { expense -> showDeleteExpenseDialog(expense) }
         )
     }
 
+    // Configuración de la interfaz de usuario
     private fun setupUI() {
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = incomeAdapter // Default
@@ -95,6 +99,7 @@ class TransactionsFragment : Fragment() {
 
         setFragmentResultListener("transaction_updated") { _, _ -> fetchData() }
     }
+
 
     private fun observeViewModel() {
         transactionsViewModel.incomes.observe(viewLifecycleOwner) { incomes ->
@@ -126,6 +131,7 @@ class TransactionsFragment : Fragment() {
         }
     }
 
+    // Mostrar el DatePickerDialog
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
@@ -135,7 +141,7 @@ class TransactionsFragment : Fragment() {
             binding.etDate.setText(formattedDate)
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
     }
-
+    // Abrir el diálogo de edición
     private fun openEditDialog(transaction: Any, isIncome: Boolean) {
         val dialog = when (transaction) {
             is Income -> EditTransactionDialog.newInstance(
@@ -162,11 +168,11 @@ class TransactionsFragment : Fragment() {
         }
         dialog.show(parentFragmentManager, "EditTransactionDialog")
     }
-
+    // Guardar el ingreso en Firebase
     private fun saveIncomeToFirebase() {
         val name = binding.etDescription.text.toString()
         val amountText = binding.etAmount.text.toString()
-
+        // Validaciones
         if (name.isBlank() || amountText.isBlank()) {
             Toast.makeText(requireContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
             return

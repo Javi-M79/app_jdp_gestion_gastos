@@ -1,1 +1,2 @@
-En esta carpeta incluiremos todas las operaciones CRUD y la logica para que cada clase intereactue con Firebase.
+Los repositorios seran lso encargados de conectar con la Base de datos. 
+Incluiran todos los metodos requeridos para hacer consultas a Firebase.
