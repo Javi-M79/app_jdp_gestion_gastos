@@ -8,7 +8,7 @@ import java.io.Serializable
 // get y set de PropertyName: se usa para mapear correctamente los nombres de campos en Firestore.
 data class User(
     @get:PropertyName("name") @set:PropertyName("name") var name: String = "",
-    @get:PropertyName("mail") @set:PropertyName("mail") var mail: String = "",
+    @get:PropertyName("email") @set:PropertyName("email") var mail: String = "",
     @get:PropertyName("profile_picture") @set:PropertyName("profile_picture") var profilePicture: String = "",
     @get:PropertyName("groups") @set:PropertyName("groups") var groups: List<String> = emptyList(),
     @get:PropertyName("createdAt") @set:PropertyName("createdAt") var createdAt: Long? = null,
