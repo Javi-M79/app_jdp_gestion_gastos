@@ -11,66 +11,135 @@ import kotlinx.coroutines.tasks.await
 class GroupRepository {
     private val db = FirebaseFirestore.getInstance()
     private val groupCollection = db.collection("groups")
-    private val userCollection = db.collection("users") // AÑADIDO
+    private val userCollection = db.collection("users")
 
-    // Crear un nuevo grupo en Firestore
-    suspend fun createGroup(group: Group): String? {
-        val docRef = groupCollection.add(group).await()
-        docRef.update("id", docRef.id).await() // Guardar el ID del documento en el campo "id"
-        return docRef.id
+    // Método auxiliar para obtener el userId dado un email
+    private suspend fun getUserIdByEmail(email: String): String? {
+        val snapshot = userCollection.whereEqualTo("email", email).get().await()
+        return if (!snapshot.isEmpty) snapshot.documents[0].id else null
     }
 
-    // Obtener los grupos de un usuario
-    suspend fun getUserGroups(userId: String): List<Group> {
-        val snapshot = groupCollection.whereArrayContains("members", userId).get().await()
+    suspend fun createGroup(group: Group): String? {
+        val docRef = groupCollection.add(group).await()
+        val groupId = docRef.id
+        docRef.update("id", groupId).await()
+
+        // Actualizar el campo "groups" en cada usuario miembro
+        group.members.forEach { userEmail ->
+            val userId = getUserIdByEmail(userEmail)
+            if (userId != null) {
+                updateUserGroupList(userId, groupId)
+            } else {
+                Log.w("GroupRepository", "Usuario con email $userEmail no encontrado para actualizar grupos")
+            }
+        }
+
+        return groupId
+    }
+
+    suspend fun getUserGroups(userEmail: String): List<Group> {
+        val snapshot = groupCollection.whereArrayContains("members", userEmail).get().await()
         return snapshot.documents.mapNotNull { it.toObject<Group>() }
     }
 
-    // Agregar un usuario a un grupo existente
-    suspend fun addUserToGroup(groupId: String, userId: String) {
+    suspend fun addUserToGroup(groupId: String, userEmail: String) {
         val groupRef = groupCollection.document(groupId)
         val snapshot = groupRef.get().await()
         val group = snapshot.toObject<Group>()
 
         if (group != null) {
             val updatedMembers = group.members.toMutableList()
-            if (!updatedMembers.contains(userId)) {
-                updatedMembers.add(userId)
+            if (!updatedMembers.contains(userEmail)) {
+                updatedMembers.add(userEmail)
                 groupRef.update("members", updatedMembers).await()
-            }
-        }
-    }
 
-    /// Obtener usuarios por lista de IDs
-    suspend fun getUsersByIds(userIds: List<String>): List<User> {
-        val users = mutableListOf<User>()
-        try {
-            val snapshots = userCollection.whereIn(FieldPath.documentId(), userIds).get().await()
-            snapshots.documents.forEach { snapshot ->
-                snapshot.toObject(User::class.java)?.let {
-                    it.id = snapshot.id // 👈 Asignar UID manualmente
-                    users.add(it)
+                val userId = getUserIdByEmail(userEmail)
+                if (userId != null) {
+                    updateUserGroupList(userId, groupId)
+                } else {
+                    Log.w("GroupRepository", "Usuario con email $userEmail no encontrado para añadir al grupo")
                 }
             }
-        } catch (e: Exception) {
-            Log.e("GroupRepository", "Error al obtener usuarios: ${e.message}", e)
         }
-        Log.d("GroupRepository", "Usuarios obtenidos: ${users.size}")
-        return users
     }
 
-    // Obtener todos los usuarios
-    suspend fun getAllUsers(): List<User> {
-        val snapshot = userCollection.get().await()
-        return snapshot.documents.mapNotNull { doc ->
-            doc.toObject(User::class.java)?.apply {
-                id = doc.id // 👈 Asignar UID manualmente
+    private suspend fun updateUserGroupList(userId: String, groupId: String) {
+        val userRef = userCollection.document(userId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(userRef)
+            val currentGroups = snapshot.get("groups") as? List<String> ?: emptyList()
+            if (!currentGroups.contains(groupId)) {
+                val updatedGroups = currentGroups + groupId
+                transaction.update(userRef, "groups", updatedGroups)
+            }
+        }.await()
+    }
+
+    suspend fun removeUserFromGroup(groupId: String, userEmail: String) {
+        val groupRef = groupCollection.document(groupId)
+        val snapshot = groupRef.get().await()
+        val group = snapshot.toObject<Group>()
+
+        if (group != null) {
+            val updatedMembers = group.members.toMutableList()
+            if (updatedMembers.contains(userEmail)) {
+                updatedMembers.remove(userEmail)
+                groupRef.update("members", updatedMembers).await()
+
+                val userId = getUserIdByEmail(userEmail)
+                if (userId != null) {
+                    removeGroupFromUser(userId, groupId)
+                } else {
+                    Log.w("GroupRepository", "Usuario con email $userEmail no encontrado para eliminar del grupo")
+                }
             }
         }
     }
 
-    // Actualizar los miembros del grupo
-    suspend fun updateGroupMembers(groupId: String, members: List<String>) {
-        groupCollection.document(groupId).update("members", members).await()
+    private suspend fun removeGroupFromUser(userId: String, groupId: String) {
+        val userRef = userCollection.document(userId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(userRef)
+            val currentGroups = snapshot.get("groups") as? List<String> ?: emptyList()
+            if (currentGroups.contains(groupId)) {
+                val updatedGroups = currentGroups.filter { it != groupId }
+                transaction.update(userRef, "groups", updatedGroups)
+            }
+        }.await()
+    }
+
+    suspend fun deleteGroup(groupId: String) {
+        val groupRef = groupCollection.document(groupId)
+        val snapshot = groupRef.get().await()
+        val group = snapshot.toObject<Group>()
+
+        if (group != null) {
+            group.members.forEach { userEmail ->
+                val userId = getUserIdByEmail(userEmail)
+                if (userId != null) {
+                    removeGroupFromUser(userId, groupId)
+                } else {
+                    Log.w("GroupRepository", "Usuario con email $userEmail no encontrado para eliminar grupo")
+                }
+            }
+            groupRef.delete().await()
+        }
+    }
+
+    suspend fun getAllUsers(): List<User> {
+        val snapshot = userCollection.get().await()
+        return snapshot.documents.mapNotNull { it.toObject<User>() }
+    }
+
+    fun listenToUserGroups(userEmail: String, onGroupsChanged: (List<Group>) -> Unit) {
+        groupCollection.whereArrayContains("members", userEmail)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null || snapshots == null) {
+                    Log.e("GroupRepository", "Error escuchando grupos", error)
+                    return@addSnapshotListener
+                }
+                val groups = snapshots.documents.mapNotNull { it.toObject(Group::class.java) }
+                onGroupsChanged(groups)
+            }
     }
 }
