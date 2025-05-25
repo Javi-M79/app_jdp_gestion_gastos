@@ -61,6 +61,9 @@ dependencies {
     implementation(libs.google.firebase.auth.ktx)
     implementation(libs.google.firebase.firestore.ktx)
     implementation(libs.firebase.database.ktx)
+    implementation (libs.play.services.auth)
+    implementation (libs.facebook.login)
+
 
     // Compose
     implementation(libs.androidx.compose.ui)
