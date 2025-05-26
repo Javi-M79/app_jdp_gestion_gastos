@@ -9,28 +9,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.example.app_jdp_gestion_gastos.R
+import com.example.app_jdp_gestion_gastos.data.model.Group
 import com.example.app_jdp_gestion_gastos.data.repository.StatsRepository
 import com.example.app_jdp_gestion_gastos.databinding.FragmentStatsBinding
+import com.example.app_jdp_gestion_gastos.ui.dialog.StatsDialog
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModel
 import com.example.app_jdp_gestion_gastos.ui.viewmodel.StatsViewModelFactory
-import com.example.app_jdp_gestion_gastos.ui.dialog.StatsDialog
-import java.util.Calendar
+import kotlinx.coroutines.launch
 
 class StatsFragment : Fragment() {
 
     private var _binding: FragmentStatsBinding? = null
     private val binding get() = _binding!!
 
-    // Crear instancia del ViewModel utilizando el ViewModelFactory
     private val statsViewModel: StatsViewModel by viewModels {
-        StatsViewModelFactory(StatsRepository()) // Pasar el repositorio
+        StatsViewModelFactory(StatsRepository())
     }
+
+    // Adaptador y lista de grupos (para el spinner)
+    private var gruposAdapter: ArrayAdapter<String>? = null
+    private var gruposList: List<Group> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,124 +46,130 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Cargar las estadísticas
-        statsViewModel.loadStats()
+        // Variables para los spinners
+        val spinnerMeses = binding.spinnerMonthFilter
+        val spinnerTipo = binding.spinnerTipoDatos
+        val spinnerGrupo = binding.spinnerGrupo
 
-        val spinner: Spinner = binding.spinnerMonthFilter
-        val months = resources.getStringArray(com.example.app_jdp_gestion_gastos.R.array.months_array)
-        val adapter = ArrayAdapter(
-            requireContext(),
-            R.layout.item_spinner,
-            months
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-        binding.spinnerMonthFilter.setSelection(Calendar.getInstance().get(Calendar.MONTH) + 1)
-        binding.spinnerMonthFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        // Carga los nombres de los meses
+        val meses = resources.getStringArray(R.array.months_array)
+        spinnerMeses.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, meses)
+
+        // Carga los tipos de datos (Personal o grupo)
+        val tiposDatos = arrayOf("Personales", "Grupo")
+        spinnerTipo.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, tiposDatos)
+
+        // Inicialmente oculta el spinnerGrupo
+        spinnerGrupo.visibility = View.GONE
+
+        // Observa la lista de grupos del ViewModel para llenar spinnerGrupo cuando cambie
+        statsViewModel.userGroups.observe(viewLifecycleOwner) { grupos ->
+            gruposList = grupos
+            val nombresGrupos = grupos.map { it.name }
+            gruposAdapter = ArrayAdapter(requireContext(), R.layout.item_spinner, nombresGrupos)
+            spinnerGrupo.adapter = gruposAdapter
+            // Selecciona el primer grupo si existe y actualiza ViewModel
+            if (grupos.isNotEmpty()) {
+                spinnerGrupo.setSelection(0)
+                statsViewModel.setSelectedGroupId(grupos[0].id)
+                recargarDatos(spinnerMeses.selectedItemPosition)
+            }
+        }
+
+        // Listener del spinner de tipo de datos
+        spinnerTipo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                animateViews()
-                if (position == 0) {
-                    statsViewModel.loadStatsForMonth(null) // Todo el año
-                } else {
-                    statsViewModel.loadStatsForMonth(position - 1) // Mes específico
+                val esGrupo = position == 1
+                spinnerGrupo.visibility = if (esGrupo) View.VISIBLE else View.GONE
+                statsViewModel.setGrupoSeleccionado(esGrupo)
+                // Si es grupo, carga grupos (userGroups se actualizará y spinner también)
+                if (!esGrupo) {
+                    // Si cambias a "Personales", borrar grupo seleccionado y recargar
+                    statsViewModel.setSelectedGroupId(null)
+                    recargarDatos(spinnerMeses.selectedItemPosition)
                 }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // Observar el total de ingresos
-        statsViewModel.totalIngresos.observe(viewLifecycleOwner, Observer { totalIngresos ->
-            binding.tvTotalIngresos.text = "Total de Ingresos: ${"%.2f".format(totalIngresos)} €"
-        })
-
-        // Observar el total de gastos
-        statsViewModel.totalGastos.observe(viewLifecycleOwner, Observer { totalGastos ->
-            binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(totalGastos)} €"
-        })
-
-        // Mostrar total disponible
-        statsViewModel.promedioGastos.observe(viewLifecycleOwner, Observer { promedioGastos ->
-            val numeroFormateado = if (promedioGastos < 0) {
-                "-%.2f €".format(-promedioGastos)
-            } else {
-                "%.2f €".format(promedioGastos)
+        // Listener del spinner de grupos (cuando esta visible)
+        spinnerGrupo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // Actualiza el groupId seleccionado en ViewModel según posición del spinner
+                if (position in gruposList.indices) {
+                    val grupoSeleccionado = gruposList[position]
+                    statsViewModel.setSelectedGroupId(grupoSeleccionado.id)
+                    recargarDatos(spinnerMeses.selectedItemPosition)
+                }
             }
 
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // Listener del spinner de meses
+        spinnerMeses.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                recargarDatos(position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // Observadores del ViewModel para mostrar totales e información de estadísticas
+        statsViewModel.totalIngresos.observe(viewLifecycleOwner) {
+            binding.tvTotalIngresos.text = "Total de Ingresos: ${"%.2f".format(it)} €"
+        }
+
+        statsViewModel.totalGastos.observe(viewLifecycleOwner) {
+            binding.tvTotalGastos.text = "Total de Gastos: ${"%.2f".format(it)} €"
+        }
+
+        statsViewModel.promedioGastos.observe(viewLifecycleOwner) { promedio ->
             val textoBase = "Total disponible: "
+            val numeroFormateado = if (promedio < 0) "-%.2f €".format(-promedio) else "%.2f €".format(promedio)
             val textoCompleto = textoBase + numeroFormateado
-
             val spannable = SpannableString(textoCompleto)
-
-            // Definir el color según positivo o negativo
-            val colorRes =
-                if (promedioGastos < 0) android.R.color.holo_red_dark else android.R.color.holo_green_dark
+            val colorRes = if (promedio < 0) android.R.color.holo_red_dark else android.R.color.holo_green_dark
             val color = ContextCompat.getColor(requireContext(), colorRes)
-
-            // Aplicar el color solo al número
-            spannable.setSpan(
-                ForegroundColorSpan(color),
-                textoBase.length, // inicio del número
-                textoCompleto.length, // fin del número
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-
+            spannable.setSpan(ForegroundColorSpan(color), textoBase.length, textoCompleto.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             binding.tvPromedioGastos.text = spannable
-        })
+        }
 
-        // Observar el número de transacciones de ingresos
-        statsViewModel.numTransaccionesIngresos.observe(
-            viewLifecycleOwner,
-            Observer { numTransaccionesIngresos ->
-                binding.tvNumTransaccionesIngresos.text =
-                    "Número de Ingresos: $numTransaccionesIngresos"
-            })
+        statsViewModel.numTransaccionesIngresos.observe(viewLifecycleOwner) {
+            binding.tvNumTransaccionesIngresos.text = "Número de Ingresos: $it"
+        }
 
-        // Observar el número de transacciones de gastos
-        statsViewModel.numTransaccionesGastos.observe(
-            viewLifecycleOwner,
-            Observer { numTransaccionesGastos ->
-                binding.tvNumTransaccionesGastos.text = "Número de Gastos: $numTransaccionesGastos"
-            })
+        statsViewModel.numTransaccionesGastos.observe(viewLifecycleOwner) {
+            binding.tvNumTransaccionesGastos.text = "Número de Gastos: $it"
+        }
 
-        // Acción al pulsar en el total de ingresos
         binding.tvTotalIngresos.setOnClickListener {
-            statsViewModel.getIncomesForMonth { incomes ->
-                showStatsDialog("Ingresos", incomes)
+            statsViewModel.getIncomesForMonth { ingresos ->
+                showStatsDialog("Ingresos", ingresos)
             }
         }
 
         binding.tvTotalGastos.setOnClickListener {
-            statsViewModel.getExpensesForMonth { expenses ->
-                showStatsDialog("Gastos", expenses)
+            statsViewModel.getExpensesForMonth { gastos ->
+                showStatsDialog("Gastos", gastos)
             }
         }
+    }
+
+    private fun recargarDatos(posMes: Int) {
+        animateViews()
+        statsViewModel.loadStatsForMonth(if (posMes == 0) null else posMes - 1)
+    }
+
+    private fun animateViews() { /* Implementación opcional */ }
+
+    private fun showStatsDialog(title: String, items: List<String>) {
+        StatsDialog.newInstance(title, items).show(childFragmentManager, "statsDialog")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun animateViews() {
-        val views = listOf(
-            binding.totalIngresosContainer,
-            binding.totalGastosContainer,
-            binding.promedioGastosContainer,
-            binding.numIngresosContainer,
-            binding.numGastosContainer
-        )
-
-        views.forEach { view ->
-            view.animate().alpha(0f).setDuration(150).withEndAction {
-                view.alpha = 0f
-                view.animate().alpha(1f).setDuration(300).start()
-            }.start()
-        }
-    }
-
-    private fun showStatsDialog(title: String, items: List<String>) {
-        val dialog = StatsDialog.newInstance(title, items)
-        dialog.show(childFragmentManager, "statsDialog")
     }
 }
