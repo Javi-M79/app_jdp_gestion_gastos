@@ -31,6 +31,7 @@ class StatsFragment : Fragment() {
         StatsViewModelFactory(StatsRepository())
     }
 
+    // Adaptador y lista de grupos (para el spinner)
     private var gruposAdapter: ArrayAdapter<String>? = null
     private var gruposList: List<Group> = emptyList()
 
@@ -45,16 +46,20 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Variables para los spinners
         val spinnerMeses = binding.spinnerMonthFilter
         val spinnerTipo = binding.spinnerTipoDatos
         val spinnerGrupo = binding.spinnerGrupo
 
+        // Carga los nombres de los meses
         val meses = resources.getStringArray(R.array.months_array)
         spinnerMeses.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, meses)
 
+        // Carga los tipos de datos (Personal o grupo)
         val tiposDatos = arrayOf("Personales", "Grupo")
         spinnerTipo.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, tiposDatos)
 
+        // Inicialmente oculta el spinnerGrupo
         spinnerGrupo.visibility = View.GONE
 
         // Observa la lista de grupos del ViewModel para llenar spinnerGrupo cuando cambie
@@ -71,6 +76,7 @@ class StatsFragment : Fragment() {
             }
         }
 
+        // Listener del spinner de tipo de datos
         spinnerTipo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val esGrupo = position == 1
@@ -87,6 +93,7 @@ class StatsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Listener del spinner de grupos (cuando esta visible)
         spinnerGrupo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 // Actualiza el groupId seleccionado en ViewModel según posición del spinner
@@ -100,6 +107,7 @@ class StatsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Listener del spinner de meses
         spinnerMeses.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 recargarDatos(position)
@@ -108,6 +116,7 @@ class StatsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Observadores del ViewModel para mostrar totales e información de estadísticas
         statsViewModel.totalIngresos.observe(viewLifecycleOwner) {
             binding.tvTotalIngresos.text = "Total de Ingresos: ${"%.2f".format(it)} €"
         }

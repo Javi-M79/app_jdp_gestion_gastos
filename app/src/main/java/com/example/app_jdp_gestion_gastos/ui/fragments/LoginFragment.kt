@@ -47,7 +47,7 @@ class LoginFragment : Fragment() {
         UserModelFactory(userRepository)
     }
 
-    // TODO: VARIABLES
+    // Variables para google y Facebook
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var googleLauncher: ActivityResultLauncher<Intent>
     private lateinit var callbackManager: CallbackManager
@@ -183,6 +183,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // TODO: Resultado del Facebook Login
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         callbackManager.onActivityResult(requestCode, resultCode, data)
@@ -203,6 +204,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // TODO: Animación de presión del botón
     private fun applyButtonPressAnimation() {
         binding.btnLogin.setOnTouchListener { view, event ->
             when (event.action) {

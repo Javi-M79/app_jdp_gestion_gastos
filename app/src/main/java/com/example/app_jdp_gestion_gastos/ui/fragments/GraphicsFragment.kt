@@ -33,13 +33,16 @@ import java.util.*
 
 class GraphicsFragment : Fragment() {
 
+    // Variables del ViewBinding para acceder a las vistas
     private var _binding: FragmentGraphicsChartBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel con el repositorio
     private val viewModel: GroupChartViewModel by viewModels {
         GroupChartViewModelFactory(GroupChartRepository())
     }
 
+    // Variables para guardar el mes y el año actual
     private var selectedMonth: Int = Calendar.getInstance().get(Calendar.MONTH)
     private var selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 
@@ -58,6 +61,7 @@ class GraphicsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Configuración de spinners, radio buttons y botón para guardar PDF
         setupSpinners()
         setupRadioButtons()
         setupSavePdfButton()
@@ -69,14 +73,18 @@ class GraphicsFragment : Fragment() {
             updateBalanceText(ingresos, gastos)
         }
 
+        // Observa el ID del grupo
         viewModel.groupId.observe(viewLifecycleOwner) {
             currentGroupId = it
         }
 
+        // Carga datos del gráfico
         loadChartData()
     }
 
+
     private fun setupSpinners() {
+        // Spinner de meses
         val months = listOf(
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
@@ -93,6 +101,7 @@ class GraphicsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Spinners para años
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
         val years = (2020..currentYear).toList()
         val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years)
@@ -106,6 +115,7 @@ class GraphicsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Spinners para modos (individual o grupal)
         val modes = listOf("Individual", "Grupal")
         val modeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modes)
         binding.spinnergrupo.adapter = modeAdapter
@@ -119,6 +129,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Función para cambio de gráfico de barras o gráfico de pastel
     private fun setupRadioButtons() {
         binding.graphTypeGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -132,25 +143,30 @@ class GraphicsFragment : Fragment() {
                 }
             }
         }
-        // Default show bar chart
+        //Por defecto se muestra el de barras
         binding.barChart.visibility = View.VISIBLE
         binding.pieChart.visibility = View.GONE
     }
 
+    // TODO: función para guardar en PDF
     private fun setupSavePdfButton() {
         binding.btnSaveChart.setOnClickListener {
+            // Obtenemos el gráfico que esta visible
             val chartView = if (binding.barChart.visibility == View.VISIBLE) binding.barChart else binding.pieChart
 
+            // Captura el gráfico como bitmap
             val bitmap = Bitmap.createBitmap(chartView.width, chartView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             chartView.draw(canvas)
 
+            // Creamos el PDF y guarda el gráfico en el
             val document = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
             val page = document.startPage(pageInfo)
             page.canvas.drawBitmap(bitmap, 0f, 0f, null)
             document.finishPage(page)
 
+            // Convertimos el PDF a bytes
             val outputStream = java.io.ByteArrayOutputStream()
             try {
                 document.writeTo(outputStream)
@@ -167,12 +183,14 @@ class GraphicsFragment : Fragment() {
             else
                 "grafico_pastel_ingresos_gastos.pdf"
 
+            // Guarda el PDF según la vesión de Android del teléfono
             val saved = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 savePdfToDownloads(pdfFileName, pdfBytes)
             } else {
                 savePdfLegacy(pdfFileName, pdfBytes)
             }
 
+            // Mostramos el resultado
             if (saved) {
                 Toast.makeText(requireContext(), "PDF guardado en Descargas y listo para compartir", Toast.LENGTH_SHORT).show()
             } else {
@@ -181,10 +199,12 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Función para cargar datos según mes y año
     private fun loadChartData() {
         viewModel.loadData(selectedMonth, selectedYear)
     }
 
+    // TODO: Función para dibujar gráfico (BARRAS)
     private fun drawBarChart(ingresos: Float, gastos: Float) {
         val entries = listOf(
             BarEntry(0f, ingresos),
@@ -204,6 +224,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Función para dibujar gráfico (PASTEL)
     private fun drawPieChart(ingresos: Float, gastos: Float) {
         val entries = listOf(
             PieEntry(ingresos, "Ingresos"),
@@ -221,11 +242,13 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Función para mostrar el balance en €
     private fun updateBalanceText(ingresos: Float, gastos: Float) {
         val balance = ingresos - gastos
         binding.tvBalance.text = "Balance: ${"%.2f".format(balance)} €"
     }
 
+    // TODO: Función para guardar el archivo PDF en Descargas
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun savePdfToDownloads(pdfName: String, pdfBytes: ByteArray): Boolean {
         val contentValues = ContentValues().apply {
@@ -273,6 +296,7 @@ class GraphicsFragment : Fragment() {
         }
     }
 
+    // TODO: Función para compartir el PDF con otra aplicación
     private fun sharePdfUri(uri: android.net.Uri) {
         val shareIntent = android.content.Intent().apply {
             action = android.content.Intent.ACTION_SEND
