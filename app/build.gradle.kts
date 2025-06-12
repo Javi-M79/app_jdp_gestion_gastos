@@ -61,8 +61,11 @@ dependencies {
     implementation(libs.google.firebase.auth.ktx)
     implementation(libs.google.firebase.firestore.ktx)
     implementation(libs.firebase.database.ktx)
-    implementation (libs.play.services.auth)
-    implementation (libs.facebook.login)
+
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.facebook.android:facebook-login:16.1.3")
+
+
 
 
     // Compose
