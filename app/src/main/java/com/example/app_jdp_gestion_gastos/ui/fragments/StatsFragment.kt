@@ -55,6 +55,10 @@ class StatsFragment : Fragment() {
         val meses = resources.getStringArray(R.array.months_array)
         spinnerMeses.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, meses)
 
+        // Selecciona por defecto el mes actual (enero = 0, diciembre = 11)
+        val mesActual = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+        spinnerMeses.setSelection(mesActual)
+
         // Carga los tipos de datos (Personal o grupo)
         val tiposDatos = arrayOf("Personales", "Grupo")
         spinnerTipo.adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, tiposDatos)
